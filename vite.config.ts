@@ -37,7 +37,7 @@ function devSamplePlugin(): Plugin {
 }
 
 /**
- * One build, one artifact. dist/index.html is fully self-contained — code,
+ * One build, one artifact. docs/index.html is fully self-contained — code,
  * styles, fonts and icons are inlined — so the same file works hosted on any
  * static server AND opened from disk via file:// (DESIGN.md §2). base './'
  * keeps every remaining reference relative.
@@ -46,6 +46,7 @@ export default defineConfig({
   base: './',
   plugins: [react(), devSamplePlugin(), viteSingleFile({ removeViteModuleLoader: true })],
   build: {
+    outDir: 'docs', // committed and served by GitHub Pages (Settings → Pages → main, /docs)
     target: 'es2022',
     sourcemap: false,
     assetsInlineLimit: 100 * 1024 * 1024, // inline every asset (fonts, icons, images) as data: URIs

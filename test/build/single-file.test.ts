@@ -1,5 +1,5 @@
 /**
- * One build, one artifact (DESIGN.md §2 "One artifact"): dist/index.html must
+ * One build, one artifact (DESIGN.md §2 "One artifact"): docs/index.html must
  * be fully self-contained so the same file works hosted on any static server
  * and opened from disk via file://, where a browser blocks fetch() and often
  * refuses sibling files. So nothing in the file — markup, CSS, or the JS
@@ -15,7 +15,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const ROOT = process.cwd();
-const DIST = resolve(ROOT, 'dist', 'index.html');
+const DIST = resolve(ROOT, 'docs', 'index.html');
 const present = existsSync(DIST);
 
 /** Font families that must ship inside the file as WOFF2 data URIs. */
@@ -59,7 +59,7 @@ function cssUrls(css: string): string[] {
   return out;
 }
 
-describe.skipIf(!present)('dist/index.html is a single self-contained file', () => {
+describe.skipIf(!present)('docs/index.html is a single self-contained file', () => {
   const html = present ? readFileSync(DIST, 'utf8') : '';
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const scripts = Array.from(doc.querySelectorAll('script'));
@@ -149,14 +149,14 @@ describe.skipIf(!present)('dist/index.html is a single self-contained file', () 
 
   it('references none of the old public/ assets', () => {
     for (const name of ['coastline-logo.svg', 'coastline-logo.png', 'sample.imscc']) {
-      expect(html.includes(name), `dist/index.html mentions ${name}`).toBe(false);
+      expect(html.includes(name), `docs/index.html mentions ${name}`).toBe(false);
     }
   });
 
   it('is reasonably small (under 4 MB) and reports its size', () => {
     const bytes = statSync(DIST).size;
     // eslint-disable-next-line no-console
-    console.info(`dist/index.html: ${bytes} bytes (${(bytes / 1024 / 1024).toFixed(2)} MB)`);
+    console.info(`docs/index.html: ${bytes} bytes (${(bytes / 1024 / 1024).toFixed(2)} MB)`);
     expect(bytes).toBeLessThan(4 * 1024 * 1024);
   });
 });

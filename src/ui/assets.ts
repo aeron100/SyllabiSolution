@@ -1,6 +1,6 @@
 /**
  * Build-time assets, inlined so the app makes no request of its own
- * (DESIGN.md §2 "One artifact"): the same dist/index.html works hosted on
+ * (DESIGN.md §2 "One artifact"): the same docs/index.html works hosted on
  * any static server and opened from disk via file://, where fetch() of a
  * sibling file is blocked by browsers.
  */

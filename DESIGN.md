@@ -2,8 +2,8 @@
 
 Status: Phase 1 implemented. Run `npm run dev` and open the app; tests via
 `npm test`; production build via `npm run build`, which writes one
-self-contained file as `dist/SyllabiSolution.html` (to email or share)
-and the same file as `dist/index.html` (for static hosting).
+self-contained file as `docs/SyllabiSolution.html` (to email or share)
+and the same file as `docs/index.html` (for static hosting).
 In development, `?load=/__dev/<file>.imscc` loads an export from the project
 root without uploading.
 Last updated: 2026-09-03 (Phase 1 built: wizard, tiles, palettes, Coastline branding)
@@ -55,7 +55,7 @@ Everything is procedural. No AI inference anywhere in Phase 1. No server.
    and the generated file itself contains none. Download and Print live in
    the app, not in the document.
 8. **One artifact.** One build produces one self-contained HTML file,
-   `dist/index.html`, that works identically hosted on any static server
+   `docs/index.html`, that works identically hosted on any static server
    and opened from disk by double-clicking (`file://`). Code, styles, fonts,
    icons and the logo are inlined; the app makes no network or file request
    of its own. The course export is read through the File API only.
@@ -671,7 +671,7 @@ disclosure.
 startup and lands on step 2. It is the one `fetch` in the code base. It lives
 only inside the `import.meta.env.DEV` guard of the boot effect, not on the
 hook's actions, so it is compiled out of the production build:
-`dist/index.html` contains no `fetch` call at all, which
+`docs/index.html` contains no `fetch` call at all, which
 `test/build/single-file.test.ts` asserts.
 
 ### Look and feel
@@ -793,7 +793,7 @@ scripts/         make-palettes.mjs
   fake heading promotion, fake list conversion, table header promotion,
   link rewriting for each placeholder form, style translation table.
 - **Determinism**: same input → byte-identical output.
-- **One artifact**: `test/build/single-file.test.ts` parses `dist/index.html`
+- **One artifact**: `test/build/single-file.test.ts` parses `docs/index.html`
   and asserts nothing in it can start a request: no external script, style,
   font or image; every `url()` and `src` a `data:` URI; no `fetch`, XHR,
   worker, dynamic import or `?load=` path in the bundle.
@@ -918,7 +918,7 @@ The "nothing is uploaded" promise moved into the "What to expect" list
 | Narrow screens | Two-column steps stack; the wizard stays one step per screen | 1 |
 | Browser print differences | Disclaimer recommends Chrome or Edge | 1 |
 | Refresh loses work | No persistence. `beforeunload` confirmation while work is unsaved; disarmed after Download. Disclaimer says a refresh starts over | 1 |
-| Opened from disk (`file://`) | One self-contained `dist/index.html`; every asset inlined, no fetch. `vite-plugin-singlefile`, `base: './'`, and a build test (`test/build/single-file.test.ts`) keep it that way | 1 |
+| Opened from disk (`file://`) | One self-contained `docs/index.html`; every asset inlined, no fetch. `vite-plugin-singlefile`, `base: './'`, and a build test (`test/build/single-file.test.ts`) keep it that way | 1 |
 | `.zip` instead of `.imscc` | Accept both | 1 |
 | Generated-on stamp | Opt-in, off by default, to keep output byte-identical | 1 |
 | MathML | Kept; browsers render it natively | 1 |

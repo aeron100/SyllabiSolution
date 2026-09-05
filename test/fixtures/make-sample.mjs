@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * A small synthetic Canvas-style Common Cartridge (CC 1.1) for the tests.
- * Nothing in the app depends on it: the shipped dist/index.html bundles no
+ * Nothing in the app depends on it: the shipped docs/index.html bundles no
  * course export and never fetches one (DESIGN.md §2, §15).
  *
  * The course is fictional ("Introduction to Widgets"); every string here
