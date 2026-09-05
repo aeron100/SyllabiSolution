@@ -136,7 +136,7 @@ describe('ArrangeStep (static)', () => {
     expect(html).toMatch(/aria-live="polite" aria-atomic="true" role="status"/);
   });
 
-  it('renders the cover form with labelled 44 px inputs, a language select, and the logo switch', () => {
+  it('renders the cover form with labelled 44 px inputs and a language select', () => {
     const html = renderToStaticMarkup(<ArrangeStep {...makeProps()} />);
     for (const id of ['arrange-instructor', 'arrange-email', 'arrange-office-hours', 'arrange-meeting-times']) {
       expect(html).toContain(`for="${id}"`);
@@ -153,8 +153,7 @@ describe('ArrangeStep (static)', () => {
     expect(html).toMatch(/<option value="en" selected="">English \(en\)<\/option>/);
     expect(html).toContain('Fundamentals of Data Structures');
     expect(html).toContain('ICS 123');
-    expect(html).toMatch(/id="arrange-logo" type="checkbox" role="switch"[^>]*checked=""/);
-    expect(html).toContain('Include the Coastline College logo on the cover');
+    expect(html).not.toMatch(/<fieldset class="arrange-cover"[^]*id="arrange-logo"/);
   });
 
   it('offers an unknown current language as an option rather than showing the wrong one', () => {
@@ -188,10 +187,21 @@ describe('ArrangeStep (static)', () => {
     expect(count(html, /aria-checked="true"/g)).toBe(1);
   });
 
-  it('renders the three layout switches with their state', () => {
+  it('renders the four layout switches with their state; the logo switch follows Cover page and shows the mark', () => {
     const html = renderToStaticMarkup(<ArrangeStep {...makeProps()} />);
     expect(count(html, /role="switch"/g)).toBe(4);
     expect(html).toMatch(/id="arrange-cover-page" type="checkbox" role="switch"[^>]*checked=""/);
+    expect(html).toMatch(/id="arrange-logo" type="checkbox" role="switch"[^>]*checked=""/);
+    expect(html).toContain('>Coastline College logo<');
+    expect(html).toContain('On the cover, above the course title.');
+    // Inside the Layout fieldset, right after Cover page, with the inlined mark (decorative) beside it.
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const ids = Array.from(doc.querySelectorAll('.arrange-toggles [role="switch"]')).map((el) => el.id);
+    expect(ids).toEqual(['arrange-cover-page', 'arrange-logo', 'arrange-toc', 'arrange-page-breaks']);
+    const thumb = doc.querySelector('#arrange-logo ~ .switch-aside img') as HTMLImageElement;
+    expect(thumb.getAttribute('alt')).toBe('');
+    expect(thumb.getAttribute('src')).toMatch(/^data:image\/svg\+xml;base64,/);
+    expect(thumb.parentElement?.className).toBe('sg-logo-plate arrange-logo-thumb');
     expect(html).toMatch(/id="arrange-toc" type="checkbox" role="switch"[^>]*checked=""/);
     expect(html).toMatch(/id="arrange-page-breaks" type="checkbox" role="switch"(?![^>]*checked="")/);
     expect(html).toContain('Cover page');

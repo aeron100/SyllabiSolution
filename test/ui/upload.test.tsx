@@ -3,7 +3,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import UploadStep, { DROP_AREA_NAME, DROP_TITLE, HIGHLIGHTS_TITLE, KICKER, WRONG_FILE_MESSAGE } from '../../src/steps/UploadStep';
-import { APP_NAME, EXPECT_ITEMS, EXPORT_STEPS, HERO_FEATURES, HINTS, REASSURANCE, STATUS } from '../../src/ui/copy';
+import { ACCESSIBILITY_DISCLAIMER, APP_NAME, EXPECT_ITEMS, EXPORT_STEPS, HERO_FEATURES, HINTS, REASSURANCE, STATUS } from '../../src/ui/copy';
 import { LOGO_DATA_URI } from '../../src/ui/assets';
 
 function render(props: Partial<Parameters<typeof UploadStep>[0]> = {}): HTMLElement {
@@ -75,11 +75,11 @@ describe('UploadStep (step 1, the hero)', () => {
     expect(input?.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('shows the two disclosures with the export steps and the eleven expectations', () => {
+  it('shows the three disclosures: export steps, the eleven expectations, and the accessibility disclaimer', () => {
     const host = render();
     const fine = host.querySelector('.hero-fineprint');
     const btns = Array.from(fine?.querySelectorAll('button[aria-expanded]') ?? []);
-    expect(btns.map((b) => text(b))).toEqual(['How to export from Canvas', 'What to expect']);
+    expect(btns.map((b) => text(b))).toEqual(['How to export from Canvas', 'What to expect', 'About accessibility']);
     for (const b of btns) {
       expect(b.getAttribute('aria-expanded')).toBe('false');
       const panel = host.querySelector(`#${b.getAttribute('aria-controls')}`);
@@ -91,6 +91,15 @@ describe('UploadStep (step 1, the hero)', () => {
     const expectItems = Array.from(host.querySelectorAll('#upload-what-to-expect li')).map((li) => text(li));
     expect(expectItems).toEqual([...EXPECT_ITEMS]);
     expect(expectItems.length).toBe(11);
+    // The accessibility disclaimer: lead, three bold-led lists, closing — no headings (the outline stays h2 > h3 > h4).
+    const a11y = host.querySelector('#upload-accessibility')!;
+    const paras = Array.from(a11y.querySelectorAll(':scope > p'));
+    expect(text(paras[0])).toBe(ACCESSIBILITY_DISCLAIMER.lead);
+    expect(text(paras[paras.length - 1])).toBe(ACCESSIBILITY_DISCLAIMER.closing);
+    expect(Array.from(a11y.querySelectorAll('strong')).map((el) => text(el))).toEqual(ACCESSIBILITY_DISCLAIMER.groups.map((g) => g.title));
+    expect(Array.from(a11y.querySelectorAll('li')).map((li) => text(li))).toEqual(ACCESSIBILITY_DISCLAIMER.groups.flatMap((g) => [...g.items]));
+    expect(a11y.querySelector('h1,h2,h3,h4,h5,h6')).toBeNull();
+    expect(ACCESSIBILITY_DISCLAIMER.lead).toContain('WCAG 2.2 AA');
   });
 
   it('while busy: aria-busy, a spinner, the reading message, and inert tiles', () => {

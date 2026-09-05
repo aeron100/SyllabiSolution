@@ -65,6 +65,58 @@ export const EXPECT_ITEMS: readonly string[] = [
   "Refreshing or closing the page starts over. You'll be asked to confirm if you haven't saved yet.",
 ];
 
+/** §14 — "About accessibility" disclosure on step 1. Mirrors §6d (fixed) and §9b (reported); names the limits. */
+export interface DisclaimerGroup {
+  title: string;
+  items: readonly string[];
+}
+export const ACCESSIBILITY_DISCLAIMER = {
+  label: 'About accessibility',
+  lead:
+    'The generator makes the structure of your syllabus meet WCAG 2.2 AA and uses colors checked for contrast. It cannot judge content. What it finds but cannot fix is listed in the report on the last step.',
+  groups: [
+    {
+      title: 'Fixed every time',
+      items: [
+        'Headings are put in order: one title, no skipped levels.',
+        'Bold lines used as headings and paragraphs used as lists become real headings and lists.',
+        'Tables whose first row is bold get a real header row; tables used only for layout are unwrapped.',
+        'Empty links are removed.',
+        'The document gets a title, a language, landmarks, a skip link, and a table of contents.',
+        'Scripts, forms, and embedded tools are removed.',
+        'Every look except Original uses colors checked for contrast at readable sizes.',
+      ],
+    },
+    {
+      title: 'Reported, not fixed',
+      items: [
+        'Images with no description, or a description that is only a file name.',
+        'Links that say "click here" or show a bare web address.',
+        'Meaning carried by color alone.',
+        'Images that appear to contain text.',
+        'Low contrast in the Original look, which keeps your colors.',
+      ],
+    },
+    {
+      title: 'Not detected',
+      items: [
+        'Image descriptions that exist but are wrong.',
+        'Headings that are in order but say nothing useful.',
+        'Instructions that rely on sight, like "see the box on the right".',
+        'Passages in another language.',
+        'Complex tables with merged cells that need their headers linked by hand.',
+        'The rules that spot fake headings and decorative images can miss or misjudge; the report lists every change so you can check.',
+      ],
+    },
+  ] as readonly DisclaimerGroup[],
+  closing:
+    'A syllabus is fully accessible only when the report\'s "Still needs you" list is clear and you have checked the things no tool can see, mainly whether descriptions and link text make sense.',
+} as const;
+
+/** §8 — one line under the look gallery crediting where the palettes come from. */
+export const LOOK_SOURCES =
+  "College colors come from each college's published brand guide. More looks use the Tailwind CSS color scales. Every look is checked for contrast.";
+
 /** §14 — contextual notices keyed by the processing NoticeCode. */
 export const NOTICE_COPY: Record<NoticeCode, string> = {
   equations: "Equations can't be shown. Their source text is used instead.",

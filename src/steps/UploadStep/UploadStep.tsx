@@ -1,7 +1,7 @@
-import { useRef, useState, type ChangeEvent, type DragEvent, type MouseEvent, type Ref } from 'react';
+import { Fragment, useRef, useState, type ChangeEvent, type DragEvent, type MouseEvent, type Ref } from 'react';
 import { HeroArt, WizardFrame } from '../../components/shell';
 import { Disclosure, Notice, Tile } from '../../components/ui';
-import { APP_NAME, EXPECT_ITEMS, EXPORT_STEPS, HERO_FEATURES, HINTS, REASSURANCE, STATUS, type HeroFeature } from '../../ui/copy';
+import { ACCESSIBILITY_DISCLAIMER, APP_NAME, EXPECT_ITEMS, EXPORT_STEPS, HERO_FEATURES, HINTS, REASSURANCE, STATUS, type HeroFeature } from '../../ui/copy';
 import { LOGO_DATA_URI } from '../../ui/assets';
 import { isCartridgeFilename } from '../../ui/format';
 import './UploadStep.css';
@@ -76,8 +76,9 @@ function CoverCard() {
  * named, non-focusable group: drop and a tap on the blank paper are pointer
  * enhancements, and the keyboard path is the real "Choose a file" tile
  * (56 px) inside it, which drives a hidden file input. Errors are a Notice
- * with role="alert". Below, in small type,
- * the two disclosures from §14. No JavaScript reaches the document.
+ * with role="alert". Below, in small type, the three disclosures from §14:
+ * how to export, what to expect, and about accessibility. No JavaScript
+ * reaches the document.
  */
 export default function UploadStep({ onFile, busy, status, error, headingRef }: UploadStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -214,6 +215,22 @@ export default function UploadStep({ onFile, busy, status, error, headingRef }: 
                 <li key={item}>{item}</li>
               ))}
             </ol>
+          </Disclosure>
+          <Disclosure id="upload-accessibility" label={ACCESSIBILITY_DISCLAIMER.label}>
+            <p>{ACCESSIBILITY_DISCLAIMER.lead}</p>
+            {ACCESSIBILITY_DISCLAIMER.groups.map((g) => (
+              <Fragment key={g.title}>
+                <p className="hero-fineprint-group">
+                  <strong>{g.title}</strong>
+                </p>
+                <ul>
+                  {g.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </Fragment>
+            ))}
+            <p>{ACCESSIBILITY_DISCLAIMER.closing}</p>
           </Disclosure>
         </div>
 

@@ -166,12 +166,12 @@ describe('UploadStep (the hero) accessibility contract', () => {
     expect(busy.querySelector('.hero-drop-or')).toBeNull();
   });
 
-  it('fine print: two closed disclosures with the three export steps and the eleven expectations', () => {
+  it('fine print: three closed disclosures with the export steps, the eleven expectations, and the accessibility disclaimer', () => {
     const host = mount(upload());
     const fine = host.querySelector('.hero-fineprint')!;
-    expect(fine.children.length).toBe(2);
+    expect(fine.children.length).toBe(3);
     const btns = Array.from(fine.querySelectorAll('button[aria-expanded="false"]'));
-    expect(btns.map((b) => text(b))).toEqual(['How to export from Canvas', 'What to expect']);
+    expect(btns.map((b) => text(b))).toEqual(['How to export from Canvas', 'What to expect', 'About accessibility']);
     expect(Array.from(host.querySelectorAll('#upload-how-to-export li')).map(text)).toEqual([...EXPORT_STEPS]);
     expect(Array.from(host.querySelectorAll('#upload-what-to-expect li')).map(text)).toEqual([...EXPECT_ITEMS]);
     expect(EXPECT_ITEMS.length).toBe(11);

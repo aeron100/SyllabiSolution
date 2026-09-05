@@ -784,6 +784,19 @@ a:hover {
   color: var(--sg-muted);
   margin: 0;
 }
+/* A row with an aside (Switch `aside`): a third, end-aligned column spanning both rows. */
+.switch-row-aside {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'input label aside'
+    'input hint aside';
+}
+.switch-aside {
+  grid-area: aside;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+}
 
 /* ---- 8. Disclosure, notices, live region --------------------------------- */
 

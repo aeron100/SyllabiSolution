@@ -26,9 +26,24 @@
 .arrange-list-help {
   margin-bottom: var(--sg-space-3);
 }
+/* The logo beside its switch: the header's plate (paper in dark mode) at under half header size.
+   Dimmed, never hidden, when the switch is off, so the row keeps its shape. No fade: this
+   file stays motion-free (arrange-a11y). */
+.arrange-logo-thumb.is-off {
+  opacity: 0.4;
+}
+.arrange-logo-thumb-img {
+  display: block;
+  height: 1.25rem;
+  width: auto;
+}
 /* The Original card leads the gallery on its own row. */
 .arrange-look-original {
   grid-column: 1 / -1;
+}
+/* Where the palettes come from: one hint line under the gallery. */
+.arrange-look-sources {
+  margin: var(--sg-space-3) 0 0;
 }
 
 /* ---- The step grid ---------------------------------------------------------

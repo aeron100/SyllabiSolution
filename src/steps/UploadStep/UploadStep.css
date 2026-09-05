@@ -64,6 +64,10 @@
   width: 100%;
   max-width: 44rem;
 }
+/* "About accessibility": a bold lead-in above each short list. */
+.hero-fineprint-group {
+  margin: var(--sg-space-3) 0 var(--sg-space-1);
+}
 
 /* ---- Highlights: four paper tiles, no visible heading ---- */
 .hero-step .hero-band {

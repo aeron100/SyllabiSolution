@@ -1,5 +1,4 @@
 import type { CoverInfo } from '../../lib/types';
-import { Switch } from '../../components/ui';
 import { HINTS } from '../../ui/copy';
 import { languageOptions } from './languages';
 
@@ -9,10 +8,6 @@ export interface CoverFormProps {
   /** BCP-47 tag from DocOptions.language. */
   language: string;
   onLanguage: (language: string) => void;
-  /** Whether the cover page toggle is on; the logo hint changes when it is off. */
-  showCover: boolean;
-  includeLogo: boolean;
-  onIncludeLogo: (on: boolean) => void;
 }
 
 type TextField = 'instructor' | 'email' | 'officeHours' | 'meetingTimes';
@@ -34,15 +29,15 @@ const FIELDS: readonly FieldSpec[] = [
   { key: 'meetingTimes', id: 'arrange-meeting-times', label: 'Meeting times', type: 'text' },
 ];
 
-export const LOGO_LABEL = 'Include the Coastline College logo on the cover';
 export const LANGUAGE_HINT = 'Tells screen readers which language the document is in.';
 
 /**
  * Cover form: all fields optional, all labelled, 44 px inputs (DESIGN.md §10, §15).
  * The legend holds an h3 so "Cover" is a heading-navigation stop as well as
- * the fieldset's name (see LayoutToggles).
+ * the fieldset's name. The logo switch lives with the layout toggles
+ * (LayoutToggles), next to the cover-page toggle it depends on.
  */
-export function CoverForm({ cover, onCover, language, onLanguage, showCover, includeLogo, onIncludeLogo }: CoverFormProps) {
+export function CoverForm({ cover, onCover, language, onLanguage }: CoverFormProps) {
   const setField = (key: TextField, value: string): void => {
     const patch: Partial<CoverInfo> = {};
     patch[key] = value;
@@ -107,13 +102,6 @@ export function CoverForm({ cover, onCover, language, onLanguage, showCover, inc
           </p>
         </div>
       </div>
-      <Switch
-        id="arrange-logo"
-        label={LOGO_LABEL}
-        checked={includeLogo}
-        onChange={onIncludeLogo}
-        hint={showCover ? undefined : 'Turn on the cover page to show it.'}
-      />
     </fieldset>
   );
 }

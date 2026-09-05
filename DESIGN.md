@@ -387,7 +387,9 @@ Two groups, shown as two labelled rows in the gallery:
   district publishes no brand guide, so it has no palette. Roles a guide
   does not define are derived from its colors and say so in the `source`
   field. The gallery labels the two groups "College colors" and "More
-  looks".
+  looks". One hint line under the gallery credits the sources: college
+  colors from each college's brand guide, the rest from the Tailwind CSS
+  color scales, every look checked for contrast (`LOOK_SOURCES`).
 - **General palettes** come from the Tailwind CSS scales, below.
 
 
@@ -454,7 +456,8 @@ boundary. Any palette that fails is a failing test, so a bad hex cannot
 ship.
 
 Layout toggles are separate from style and apply to both options: cover
-page, table of contents, page break between sections. Print keeps
+page, the Coastline College logo on the cover (shown small beside its
+switch), table of contents, page break between sections. Print keeps
 `primary` on headings since it passes on white, and collapses tints and
 surfaces to paper to save ink.
 
@@ -563,8 +566,8 @@ Then a large drop target drawn as a sheet of paper with a
 dashed edge and an inline SVG motif of pages stacking into a document. A
 real "Choose a file" button inside it, the single centered primary tile;
 there is no sample to try, because the app never downloads anything
-(section 2, principle 8). Below, in small type, the two disclosures: "How
-to export from Canvas" and "What to expect". Between the drop target and
+(section 2, principle 8). Below, in small type, the three disclosures: "How
+to export from Canvas", "What to expect", and "About accessibility". Between the drop target and
 those disclosures sit two labelled sections in the same column (at most
 64 rem wide): a feature band, "Why faculty like it", of four paper cards
 with the tile sheen but the sheet's radius and shadow, so they read as
@@ -601,7 +604,7 @@ Two columns on wide screens (≥ 992 px). Left, about 42 %: the look picker
 as a gallery first — Original as a card showing the user's own formatting,
 then the palette swatches as cards, each a small stack of its five colors
 with the name beneath, the chosen one marked by a 3 px navy border and a
-check — then the three layout toggles, then "Your syllabus", the ordered
+check — then the four layout toggles, then "Your syllabus", the ordered
 list of selected items with Move up, Move down, and Remove and Alt+Arrow
 reordering, and last the cover form (instructor, email, office hours,
 meeting times, language). Right, about 58 %: a permanent "Preview" pane —
@@ -727,7 +730,7 @@ desk. Editorial, calm, confident.
 - **The hero.** Step 1 is a hero, not a grey dropzone: the app name in
   display serif, the one-line promise, a large drop target drawn as a
   dashed sheet of paper with an inline SVG motif of pages stacking into a
-  document, and the two disclosures below in small type.
+  document, and the three disclosures below in small type.
 - **Motion.** Small, purposeful: a sheet sliding in when a preview loads,
   a check drawing on a completed step. All under 200 ms and removed under
   reduced-motion.
@@ -861,6 +864,31 @@ The "nothing is uploaded" promise moved into the "What to expect" list
 9. Print from Chrome or Edge for best results.
 10. Large exports make large files; images are reduced automatically.
 11. Refreshing or closing the page starts over. You'll be asked to confirm if you haven't downloaded yet.
+
+### "About accessibility" disclosure (step 1, third disclosure)
+
+One lead sentence, then three short lists, then a closing sentence. The
+wording lives in `ui/copy.ts` (`ACCESSIBILITY_DISCLAIMER`) and mirrors
+sections 6d and 9b: structure is guaranteed, content is reported, and the
+limits of the heuristics are named rather than implied.
+
+- **Lead.** The generator makes the structure of your syllabus meet WCAG
+  2.2 AA and uses colors checked for contrast. It cannot judge content.
+  What it finds but cannot fix is listed in the report on the last step.
+- **Fixed every time.** Heading order; fake headings and fake lists made
+  real; header rows on bold-first-row tables and layout tables unwrapped;
+  empty links removed; title, language, landmarks, skip link, contents;
+  scripts, forms and embedded tools removed; contrast-checked colors in
+  every look but Original.
+- **Reported, not fixed.** Missing or file-name image descriptions; "click
+  here" and bare-address links; meaning by color alone; images of text; low
+  contrast in Original.
+- **Not detected.** Wrong-but-present descriptions; empty-meaning headings;
+  sight-only instructions; passages in another language; complex tables
+  needing explicit header links; and the fact that the promotion and
+  decorative-image rules are heuristics (the report lists every change).
+- **Closing.** Fully accessible only when "Still needs you" is clear and the
+  instructor has checked what no tool can see.
 
 ## 15. Additional considerations
 

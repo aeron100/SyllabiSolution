@@ -3,7 +3,7 @@ import { useRef, type KeyboardEvent } from 'react';
 import type { DocOptions, PaletteId, Presentation } from '../../lib/types';
 import { DEFAULT_PALETTE, PALETTES } from '../../lib/generate/colors';
 import { ChoiceTile, Swatch } from '../../components/ui';
-import { PRESENTATION_DESC } from '../../ui/copy';
+import { LOOK_SOURCES, PRESENTATION_DESC } from '../../ui/copy';
 
 export interface LookGalleryProps {
   presentation: Presentation;
@@ -64,7 +64,7 @@ export function LookGallery({ presentation, palette, onOptions }: LookGalleryPro
       <h3 className="wizard-col-title" id="arrange-look-title">
         Look
       </h3>
-      <div role="radiogroup" aria-label="Look" className="tile-choice-grid arrange-look-grid">
+      <div role="radiogroup" aria-label="Look" aria-describedby="arrange-look-sources" className="tile-choice-grid arrange-look-grid">
         <ChoiceTile
           ref={(el) => {
             refs.current[0] = el;
@@ -107,6 +107,9 @@ export function LookGallery({ presentation, palette, onOptions }: LookGalleryPro
           );
         })}
       </div>
+      <p id="arrange-look-sources" className="sg-hint arrange-look-sources">
+        {LOOK_SOURCES}
+      </p>
     </div>
   );
 }

@@ -123,7 +123,7 @@ export default function ArrangeStep({
           <LivePreview srcdoc={livePreviewSrcdoc} loading={livePreviewLoading} hasPages={n > 0} />
         </div>
         <div className="wizard-col arrange-area arrange-area-toggles">
-          <LayoutToggles options={options} onOptions={onOptions} />
+          <LayoutToggles options={options} onOptions={onOptions} includeLogo={includeLogo} onIncludeLogo={onIncludeLogo} />
         </div>
         <div className="wizard-col arrange-area arrange-area-list">
           <SyllabusList entries={entries} onMove={onMove} onRemove={onRemove} />
@@ -134,9 +134,6 @@ export default function ArrangeStep({
             onCover={onCover}
             language={options.language}
             onLanguage={(language) => onOptions({ language })}
-            showCover={options.showCover}
-            includeLogo={includeLogo}
-            onIncludeLogo={onIncludeLogo}
           />
         </div>
       </div>
