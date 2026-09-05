@@ -73,7 +73,7 @@ export interface DisclaimerGroup {
 export const ACCESSIBILITY_DISCLAIMER = {
   label: 'About accessibility',
   lead:
-    'The generator makes the structure of your syllabus meet WCAG 2.2 AA and uses colors checked for contrast. It cannot judge content. What it finds but cannot fix is listed in the report on the last step.',
+    'The generator does its best to make the structure of your syllabus meet WCAG 2.2 AA, and uses colors checked for contrast. It cannot judge content. What it finds but cannot fix is listed in the report on the last step.',
   groups: [
     {
       title: 'Fixed every time',
@@ -110,7 +110,7 @@ export const ACCESSIBILITY_DISCLAIMER = {
     },
   ] as readonly DisclaimerGroup[],
   closing:
-    'A syllabus is fully accessible only when the report\'s "Still needs you" list is clear and you have checked the things no tool can see, mainly whether descriptions and link text make sense.',
+    'All of this is a best effort, not a guarantee. Clear the report\'s "Still needs you" list and check what no tool can see, mainly whether descriptions and link text make sense. That gets you close. It does not certify the syllabus as fully accessible.',
 } as const;
 
 /** §8 — one line under the look gallery crediting where the palettes come from. */

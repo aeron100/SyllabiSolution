@@ -872,9 +872,10 @@ wording lives in `ui/copy.ts` (`ACCESSIBILITY_DISCLAIMER`) and mirrors
 sections 6d and 9b: structure is guaranteed, content is reported, and the
 limits of the heuristics are named rather than implied.
 
-- **Lead.** The generator makes the structure of your syllabus meet WCAG
-  2.2 AA and uses colors checked for contrast. It cannot judge content.
-  What it finds but cannot fix is listed in the report on the last step.
+- **Lead.** The generator does its best to make the structure of your
+  syllabus meet WCAG 2.2 AA, and uses colors checked for contrast. It
+  cannot judge content. What it finds but cannot fix is listed in the
+  report on the last step.
 - **Fixed every time.** Heading order; fake headings and fake lists made
   real; header rows on bold-first-row tables and layout tables unwrapped;
   empty links removed; title, language, landmarks, skip link, contents;
@@ -887,8 +888,9 @@ limits of the heuristics are named rather than implied.
   sight-only instructions; passages in another language; complex tables
   needing explicit header links; and the fact that the promotion and
   decorative-image rules are heuristics (the report lists every change).
-- **Closing.** Fully accessible only when "Still needs you" is clear and the
-  instructor has checked what no tool can see.
+- **Closing.** All of it is a best effort, not a guarantee. Clearing
+  "Still needs you" and checking what no tool can see gets close; it does
+  not certify the syllabus as fully accessible.
 
 ## 15. Additional considerations
 
