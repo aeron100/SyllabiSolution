@@ -1,0 +1,77 @@
+/*
+ * Step 4 — Download. Layout only; every color, size, and spacing comes from
+ * src/styles/tokens.css, so light and dark mode need nothing extra here.
+ */
+
+/* The compact action bar: Download, Print, Download report, file size, Start over. */
+.download-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sg-space-3);
+  margin-bottom: var(--sg-space-4);
+}
+.download-file {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  line-height: var(--sg-leading-tight, 1.25);
+}
+.download-filename {
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+  overflow-wrap: anywhere;
+}
+.download-size {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.download-restart {
+  margin-left: auto;
+}
+
+/* The finished document: a sheet of paper on the desk, full width. */
+.download-desk {
+  margin-bottom: var(--sg-space-5);
+}
+.download-frame {
+  min-height: 70vh;
+}
+
+/* Accessibility report (DESIGN.md §9c): disclosures with counts. */
+.download-report-title {
+  font-size: var(--sg-text-xl);
+  margin: 0 0 var(--sg-space-1);
+}
+.download-report-hint {
+  margin: 0 0 var(--sg-space-3);
+}
+.report-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: var(--sg-space-2);
+}
+.report-message {
+  overflow-wrap: anywhere;
+}
+.report-where {
+  color: var(--sg-muted);
+  font-size: var(--sg-text-sm);
+}
+.report-empty {
+  margin: 0;
+  color: var(--sg-muted);
+}
+
+/* Narrow screens: the primary action goes full width (DESIGN.md §10). */
+@media (max-width: 767.98px) {
+  .download-bar .download-primary {
+    flex: 1 1 100%;
+  }
+  .download-restart {
+    margin-left: 0;
+  }
+}

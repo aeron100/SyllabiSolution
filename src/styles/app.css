@@ -1,0 +1,1571 @@
+/* ==========================================================================
+   Syllabus Generator — app styles.
+   A desk-and-paper design system over Bootstrap 5.3 (imported before this).
+   Tokens live in tokens.css. Solid surfaces only: every fill is opaque, so
+   every label's contrast is measurable (DESIGN.md §10 "Visual identity").
+
+   Contents
+     1. Base: desk, type, links, utilities
+     2. Focus: visible everywhere, never removed or obscured
+     3. Sheets (.sg-sheet) — paper on the desk
+     4. Tiles (.tile, .tile-primary, .tile-secondary, .tile-ghost, .tile-choice)
+     5. Kind tags (.kind-tag .kind-<kind>) and filter chips (.chip)
+     6. Tree rows (.tree, .tree-row)
+     7. Form controls, switches
+     8. Disclosure, notices, live region
+     9. Shell: app frame, skip link, header, footer
+    10. Step strip
+    11. Wizard frame and columns
+    12. Hero (step 1)
+    13. Card rows (arrange list)
+    14. Responsive
+    15. Reduced motion
+   ========================================================================== */
+
+@import './tokens.css';
+
+/* ---- 1. Base ------------------------------------------------------------- */
+
+html,
+body {
+  background: var(--sg-desk); /* the desk */
+  color: var(--sg-ink);
+  font-family: var(--sg-font-ui);
+  line-height: var(--sg-leading);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Display serif for the app name and the two top heading levels only. */
+h1,
+h2,
+.sg-display {
+  font-family: var(--sg-font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: var(--sg-leading-tight);
+  color: var(--sg-ink);
+}
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--sg-font-ui);
+  font-weight: 700;
+  color: var(--sg-ink);
+}
+h3 {
+  font-size: var(--sg-text-lg);
+}
+
+a {
+  color: var(--sg-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+a:hover {
+  color: var(--sg-link-hover);
+}
+
+/* Utilities */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+.sg-muted {
+  color: var(--sg-muted);
+}
+.sg-small {
+  font-size: var(--sg-text-sm);
+}
+.sg-hint {
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+  margin: 0;
+}
+.sg-smallcaps {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+.sg-icon {
+  line-height: 1;
+  flex: 0 0 auto;
+}
+.sg-stack {
+  display: grid;
+  gap: var(--sg-space-4);
+}
+.sg-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sg-space-2) var(--sg-space-3);
+}
+.sg-empty {
+  padding: var(--sg-space-5) var(--sg-space-4);
+  text-align: center;
+  color: var(--sg-muted);
+  border: 1px dashed var(--sg-border-strong);
+  border-radius: var(--sg-radius-sheet);
+  margin: 0;
+}
+
+/* ---- 2. Focus (2.4.7 / 2.4.11) ------------------------------------------ */
+
+:focus-visible {
+  outline: var(--sg-focus-width) solid var(--sg-focus);
+  outline-offset: var(--sg-focus-offset);
+  box-shadow: none;
+}
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.btn:focus-visible {
+  outline: var(--sg-focus-width) solid var(--sg-focus);
+  outline-offset: var(--sg-focus-offset);
+  box-shadow: none;
+}
+
+/* ---- 3. Sheets ---------------------------------------------------------- */
+
+/* A sheet of paper resting on the desk: previews, the result, the drop target. */
+.sg-sheet {
+  background: var(--sg-paper);
+  color: var(--sg-ink);
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sheet);
+  box-shadow: var(--sg-shadow-sheet);
+}
+.sg-sheet-pad {
+  padding: var(--sg-space-5);
+}
+.sg-sheet-dashed {
+  border: 2px dashed var(--sg-border-strong);
+}
+/* An iframe inside a sheet fills it; the sheet supplies the border and shadow. */
+.sg-sheet-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: var(--sg-radius-sheet);
+  background: #ffffff; /* documents are always rendered on white */
+}
+/* A slot of desk around a sheet (used when a sheet sits inside a paper panel). */
+.sg-desk {
+  background: var(--sg-desk);
+  padding: var(--sg-space-4);
+  border-radius: var(--sg-radius-sheet);
+}
+/* A sheet sliding into place when a preview loads (≤ 200 ms). */
+.sg-sheet-enter {
+  animation: sg-sheet-in var(--sg-motion) var(--sg-ease);
+}
+@keyframes sg-sheet-in {
+  from {
+    transform: translateY(6px);
+    opacity: 0.6;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---- 4. Tiles ------------------------------------------------------------ */
+
+/*
+ * Metro-style tiles: flat, opaque fill; bold label; one icon; generous
+ * padding. The "glass sheen" is a white gradient (14% → 0% over the top
+ * 45%) painted on top of the opaque fill, plus a 1 px inset top highlight.
+ * Hover lifts 1 px with a stronger shadow; active presses 1 px on a darker
+ * fill; disabled drops the sheen and shadow.
+ */
+.tile {
+  --tile-bg: var(--sg-tile);
+  --tile-bg-hover: var(--sg-tile-hover);
+  --tile-bg-press: var(--sg-tile-press);
+  --tile-fg: var(--sg-ink);
+  --tile-border: var(--sg-border);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sg-space-2);
+  min-height: var(--sg-tile-md);
+  min-width: var(--sg-tile-sm);
+  padding: 0.5rem 1.25rem;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  color: var(--tile-fg);
+  background-color: var(--tile-bg);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, var(--sg-sheen)) 0%,
+    rgba(255, 255, 255, 0) 45%
+  );
+  border: 2px solid var(--tile-border);
+  border-radius: var(--sg-radius-tile);
+  box-shadow: inset 0 1px 0 var(--sg-sheen-line), var(--sg-shadow-tile);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform var(--sg-motion-fast) var(--sg-ease),
+    box-shadow var(--sg-motion-fast) var(--sg-ease),
+    background-color var(--sg-motion-fast) var(--sg-ease);
+}
+.tile .bi {
+  font-size: 1.15em;
+  line-height: 1;
+}
+.tile:hover {
+  color: var(--tile-fg);
+  background-color: var(--tile-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 var(--sg-sheen-line), var(--sg-shadow-tile-hover);
+}
+.tile:active,
+.tile.is-pressed {
+  background-color: var(--tile-bg-press);
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 0 var(--sg-sheen-line), var(--sg-shadow-tile);
+}
+.tile:disabled,
+.tile[aria-disabled='true'] {
+  --tile-bg: var(--sg-tile-disabled);
+  --tile-bg-hover: var(--sg-tile-disabled);
+  --tile-bg-press: var(--sg-tile-disabled);
+  --tile-fg: var(--sg-tile-disabled-fg);
+  --tile-border: var(--sg-tile-disabled);
+  background-image: none;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.tile-primary {
+  --tile-bg: var(--sg-tile-primary);
+  --tile-bg-hover: var(--sg-tile-primary-hover);
+  --tile-bg-press: var(--sg-tile-primary-press);
+  --tile-fg: var(--sg-tile-primary-fg);
+  --tile-border: var(--sg-tile-primary);
+}
+.tile-primary:hover {
+  --tile-border: var(--sg-tile-primary-hover);
+}
+.tile-primary:active {
+  --tile-border: var(--sg-tile-primary-press);
+}
+.tile-secondary {
+  --tile-bg: var(--sg-paper);
+  --tile-bg-hover: var(--sg-tile-hover);
+  --tile-bg-press: var(--sg-tile-press);
+  --tile-fg: var(--sg-accent);
+  --tile-border: var(--sg-accent);
+}
+[data-bs-theme='dark'] .tile-secondary {
+  --tile-bg: var(--sg-tile);
+}
+/* Ghost: a quiet tile for inline actions (Dismiss, Remove). Hairline border. */
+.tile-ghost {
+  --tile-bg: var(--sg-tile);
+  --tile-fg: var(--sg-ink);
+  --tile-border: transparent;
+  background-image: none;
+  box-shadow: none;
+}
+.tile-ghost:hover {
+  box-shadow: var(--sg-shadow-tile);
+}
+/* Toggle state on any tile (aria-pressed) */
+.tile[aria-pressed='true'] {
+  --tile-bg: var(--sg-tint);
+  --tile-bg-hover: var(--sg-tint);
+  --tile-fg: var(--sg-accent);
+  --tile-border: var(--sg-accent);
+}
+/* Inert tiles stay inert on hover and press: no lift, no shadow, no hover border (after every variant rule). */
+.tile:disabled:hover,
+.tile:disabled:active,
+.tile[aria-disabled='true']:hover,
+.tile[aria-disabled='true']:active {
+  --tile-border: var(--sg-tile-disabled);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Sizes */
+.tile-lg {
+  min-height: var(--sg-tile-lg);
+  padding-inline: 1.75rem;
+  font-size: var(--sg-text-lg);
+}
+.tile-md {
+  min-height: var(--sg-tile-md);
+}
+.tile-sm {
+  min-height: var(--sg-tile-sm);
+  padding-inline: 0.875rem;
+  font-size: var(--sg-text-sm);
+}
+.tile-icon-only {
+  padding-inline: 0;
+  width: var(--sg-tile-sm);
+}
+.tile-block {
+  display: flex;
+  width: 100%;
+}
+
+/*
+ * Choice tiles: selectable cards in a radiogroup (Original card, palette
+ * cards). Default tile fill with a strong border (≥ 3:1 on the desk, so an
+ * unchecked card still reads as a card); selected = 3 px accent border and a
+ * check in the corner slot; hover lifts.
+ */
+.tile-choice {
+  --tile-fg: var(--sg-ink);
+  --tile-bg: var(--sg-tile);
+  --tile-bg-hover: var(--sg-tile);
+  --tile-bg-press: var(--sg-tile-hover);
+  --tile-border: var(--sg-border-strong);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'media body';
+  align-items: center;
+  justify-content: start;
+  gap: var(--sg-space-3);
+  width: 100%;
+  min-height: var(--sg-tile-lg);
+  padding: var(--sg-space-3) var(--sg-space-6) var(--sg-space-3) var(--sg-space-3);
+  text-align: left;
+  border-width: 3px;
+}
+.tile-choice[aria-checked='true'] {
+  --tile-border: var(--sg-accent);
+}
+.tile-choice-media {
+  grid-area: media;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+}
+.tile-choice-media .bi {
+  font-size: 1.5rem;
+  color: var(--sg-accent);
+}
+.tile-choice-body {
+  grid-area: body;
+  min-width: 0;
+}
+.tile-choice-title {
+  display: block;
+  font-weight: 700;
+}
+.tile-choice-desc {
+  display: block;
+  font-size: var(--sg-text-sm);
+  font-weight: 400;
+  color: var(--sg-muted);
+}
+/* The check slot: always reserved, painted only when checked. */
+.tile-choice-check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  background: var(--sg-accent);
+  color: var(--sg-accent-fg);
+  visibility: hidden;
+}
+.tile-choice[aria-checked='true'] .tile-choice-check {
+  visibility: visible;
+}
+.tile-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--sg-space-3);
+}
+
+/* Swatch: five color bars, decorative. */
+.swatch {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 2px;
+  height: 2.5rem;
+  width: 3.75rem;
+  padding: 2px;
+  border-radius: var(--sg-radius-sm);
+  border: 1px solid var(--sg-border-strong);
+  background: #ffffff;
+  overflow: hidden;
+}
+.swatch-bar {
+  border-radius: 2px;
+  min-width: 0.5rem;
+}
+.swatch-lg {
+  height: 3.5rem;
+  width: 5.25rem;
+}
+
+/* ---- 5. Kind tags and filter chips -------------------------------------- */
+
+/* Per-kind color trio. Always paired with a text label and an icon. */
+.kind-page         { --kind-bg: var(--sg-kind-page-bg);         --kind-fg: var(--sg-kind-page-fg);         --kind-border: var(--sg-kind-page-border); }
+.kind-syllabus     { --kind-bg: var(--sg-kind-syllabus-bg);     --kind-fg: var(--sg-kind-syllabus-fg);     --kind-border: var(--sg-kind-syllabus-border); }
+.kind-assignment   { --kind-bg: var(--sg-kind-assignment-bg);   --kind-fg: var(--sg-kind-assignment-fg);   --kind-border: var(--sg-kind-assignment-border); }
+.kind-discussion   { --kind-bg: var(--sg-kind-discussion-bg);   --kind-fg: var(--sg-kind-discussion-fg);   --kind-border: var(--sg-kind-discussion-border); }
+.kind-announcement { --kind-bg: var(--sg-kind-announcement-bg); --kind-fg: var(--sg-kind-announcement-fg); --kind-border: var(--sg-kind-announcement-border); }
+.kind-quiz         { --kind-bg: var(--sg-kind-quiz-bg);         --kind-fg: var(--sg-kind-quiz-fg);         --kind-border: var(--sg-kind-quiz-border); }
+.kind-link         { --kind-bg: var(--sg-kind-link-bg);         --kind-fg: var(--sg-kind-link-fg);         --kind-border: var(--sg-kind-link-border); }
+.kind-tool         { --kind-bg: var(--sg-kind-tool-bg);         --kind-fg: var(--sg-kind-tool-fg);         --kind-border: var(--sg-kind-tool-border); }
+.kind-file         { --kind-bg: var(--sg-kind-file-bg);         --kind-fg: var(--sg-kind-file-fg);         --kind-border: var(--sg-kind-file-border); }
+.kind-other        { --kind-bg: var(--sg-kind-other-bg);        --kind-fg: var(--sg-kind-other-fg);        --kind-border: var(--sg-kind-other-border); }
+
+/* The pill: icon + label + hue. */
+.kind-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--sg-radius-pill);
+  border: 1px solid var(--kind-border);
+  background: var(--kind-bg);
+  color: var(--kind-fg);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+/* Filter chips: 40 px pills, real toggle buttons with aria-pressed. */
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--sg-chip);
+  padding: 0.25rem 0.85rem;
+  margin: 2px; /* room for the 2 px halo below */
+  font: inherit;
+  font-size: var(--sg-text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--sg-muted);
+  background: var(--sg-tile);
+  border: 2px solid var(--sg-border-strong);
+  border-radius: var(--sg-radius-pill);
+  cursor: pointer;
+  transition: background-color var(--sg-motion-fast) var(--sg-ease);
+}
+/* The hit box: an invisible 2 px halo that belongs to the button, so the 40 px
+   pill answers to a 44 px target (WCAG 2.5.8; DESIGN.md §10 "44 × 44 px"). */
+.chip::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+}
+.chip:hover {
+  background: var(--sg-tile-hover);
+}
+.chip .chip-state {
+  font-size: 1rem;
+  line-height: 1;
+}
+.chip .chip-count {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sg-text-xs);
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--sg-radius-pill);
+  background: var(--sg-desk);
+  color: var(--sg-ink);
+}
+.chip[aria-pressed='true'] {
+  color: var(--kind-fg, var(--sg-accent));
+  background: var(--kind-bg, var(--sg-tint));
+  border-color: var(--kind-border, var(--sg-accent));
+}
+.chip[aria-pressed='true'] .chip-count {
+  background: var(--sg-tile);
+  color: var(--kind-fg, var(--sg-accent));
+}
+.chip[aria-pressed='false'] .chip-label {
+  text-decoration: line-through;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sg-space-1);
+  margin: 0 0 var(--sg-space-3);
+}
+
+/* ---- 6. Tree rows -------------------------------------------------------- */
+
+/* The content tree: a stack of index cards. Rows are 44 px minimum. */
+.tree,
+.tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tree-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sg-space-2) var(--sg-space-3);
+  min-height: var(--sg-tile-sm);
+  padding: 0.25rem 0.5rem;
+  padding-inline-start: calc(0.5rem + var(--tree-depth, 0) * 1.5rem);
+  border-radius: var(--sg-radius-sm);
+  transition: background-color var(--sg-motion-fast) var(--sg-ease);
+}
+.tree-row:hover {
+  background: var(--sg-row-hover);
+}
+.tree-row.is-focused {
+  background: var(--sg-row-focus);
+  box-shadow: inset 4px 0 0 var(--sg-accent);
+}
+.tree-row .form-check-input {
+  margin: 0;
+}
+/* The checkbox sits in a 44 × 44 px label so the mark stays 24 px but the target does not. */
+.tree-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--sg-tile-sm);
+  height: var(--sg-tile-sm);
+  margin: 0;
+  cursor: pointer;
+}
+.tree-check .form-check-input {
+  margin: 0;
+}
+.tree-title {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font: inherit;
+  text-align: left;
+  color: var(--sg-ink);
+  background: none;
+  border: 0;
+  min-height: var(--sg-tile-sm);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--sg-radius-sm);
+}
+.tree-title:hover {
+  text-decoration: underline;
+  color: var(--sg-link);
+}
+.tree-row.is-focused .tree-title {
+  font-weight: 600;
+}
+/*
+ * Position badge: the page's place in the document, on a checked row here and
+ * on every "Your syllabus" card on step 3 (same class, same look). Text on a
+ * pill: accent on tint — navy on light blue in light mode (≥ 11:1), blue-1 on
+ * the navy-leaning tint in dark mode (7.2:1) — so it passes AA as text and
+ * the number, not the color, carries the meaning. Tabular figures keep a
+ * column of badges aligned.
+ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  padding: 0 0.45rem;
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--sg-accent);
+  background: var(--sg-tint);
+  border-radius: var(--sg-radius-pill);
+  white-space: nowrap;
+}
+/* A one-line "renders as" hint under the title. */
+.tree-hint {
+  flex-basis: 100%;
+  padding-inline-start: calc(var(--sg-tile-sm) + var(--sg-space-3));
+  font-size: var(--sg-text-xs);
+  color: var(--sg-muted);
+  line-height: 1.3;
+  margin-top: -0.35rem;
+}
+/* Module heads: disclosure button + tri-state checkbox + title + count. */
+.tree-group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+  min-height: var(--sg-tile-sm);
+  padding: 0.25rem 0.25rem;
+  padding-inline-start: calc(0.25rem + var(--tree-depth, 0) * 1.5rem);
+  font-weight: 700;
+}
+.tree-group-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.tree-count {
+  font-size: var(--sg-text-sm);
+  font-weight: 600;
+  color: var(--sg-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--sg-tile-sm);
+  height: var(--sg-tile-sm);
+  background: none;
+  border: 0;
+  border-radius: var(--sg-radius-sm);
+  color: var(--sg-ink);
+}
+.tree-toggle:hover {
+  background: var(--sg-row-hover);
+}
+/* Header-only items (no resource) are subheaders. */
+.tree-subheader {
+  min-height: var(--sg-tile-sm);
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.5rem 0.15rem;
+  padding-inline-start: calc(0.5rem + var(--tree-depth, 0) * 1.5rem);
+  font-size: var(--sg-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sg-muted);
+}
+.tree-children {
+  margin-inline-start: calc(var(--sg-tile-sm) / 2);
+  border-inline-start: 2px solid var(--sg-border);
+}
+
+/* ---- 7. Form controls ---------------------------------------------------- */
+
+.form-label {
+  font-weight: 600;
+  font-size: var(--sg-text-sm);
+  margin-bottom: 0.25rem;
+  color: var(--sg-ink);
+}
+.form-control,
+.form-select {
+  min-height: var(--sg-control);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--sg-font-ui);
+  color: var(--sg-ink);
+  background-color: var(--sg-tile);
+  border: 2px solid var(--sg-border-strong);
+  border-radius: var(--sg-radius-sm);
+}
+.form-control::placeholder {
+  color: var(--sg-muted);
+  opacity: 1;
+}
+.form-control:focus,
+.form-select:focus {
+  color: var(--sg-ink);
+  background-color: var(--sg-tile);
+  border-color: var(--sg-accent);
+}
+.form-text {
+  color: var(--sg-muted);
+  font-size: var(--sg-text-sm);
+}
+
+/* Checkboxes and radios: 24 px marks inside 44 px rows. */
+.form-check-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0;
+  flex: 0 0 auto;
+  background-color: var(--sg-tile);
+  border: 2px solid var(--sg-border-strong);
+}
+.form-check-input:checked,
+.form-check-input[type='checkbox']:indeterminate {
+  background-color: var(--sg-accent);
+  border-color: var(--sg-accent);
+}
+[data-bs-theme='dark'] .form-check-input:checked[type='checkbox'] {
+  --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%230f1720' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+[data-bs-theme='dark'] .form-check-input[type='checkbox']:indeterminate {
+  --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%230f1720' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+}
+[data-bs-theme='dark'] .form-check-input:checked[type='radio'] {
+  --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%230f1720'/%3e%3c/svg%3e");
+}
+.form-check-input:focus {
+  border-color: var(--sg-accent);
+}
+.form-check {
+  min-height: var(--sg-tile-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+  padding-left: 0;
+}
+.form-check .form-check-input {
+  margin-left: 0;
+}
+.form-check-label {
+  cursor: pointer;
+}
+
+/* Switch rows (Switch.tsx): 44 px, thumb never Bootstrap blue. */
+.switch-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'input label'
+    'input hint';
+  column-gap: var(--sg-space-3);
+  align-items: center;
+  min-height: var(--sg-tile-sm);
+  padding: 0.25rem 0;
+}
+.switch-row .form-check-input {
+  grid-area: input;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  border-radius: 2em;
+  background-position: left center;
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2364748b'/%3e%3c/svg%3e");
+  background-image: var(--bs-form-switch-bg);
+  transition: background-position var(--sg-motion-fast) var(--sg-ease);
+}
+.switch-row .form-check-input:checked {
+  background-position: right center;
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
+}
+[data-bs-theme='dark'] .switch-row .form-check-input {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%238b95a1'/%3e%3c/svg%3e");
+}
+[data-bs-theme='dark'] .switch-row .form-check-input:checked {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%230f1720'/%3e%3c/svg%3e");
+}
+/* No :focus thumb override: Bootstrap's blue focus thumb only applies under
+   .form-switch, which is never used, and the 3 px ring already signals focus.
+   The base thumbs pass 3:1 on the track in both themes. */
+.switch-label {
+  grid-area: label;
+  font-weight: 600;
+  cursor: pointer;
+}
+.switch-hint {
+  grid-area: hint;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+  margin: 0;
+}
+
+/* ---- 8. Disclosure, notices, live region --------------------------------- */
+
+.disclosure-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+  width: 100%;
+  min-height: var(--sg-tile-sm);
+  padding: 0.5rem 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--sg-link);
+  background: none;
+  border: 0;
+  border-radius: var(--sg-radius-sm);
+}
+.disclosure-btn:hover {
+  background: var(--sg-row-hover);
+  text-decoration: underline;
+}
+.disclosure-btn .bi {
+  transition: transform var(--sg-motion-fast) var(--sg-ease);
+}
+.disclosure-btn[aria-expanded='true'] .disclosure-chevron {
+  transform: rotate(90deg);
+}
+.disclosure-suffix {
+  margin-left: auto;
+  font-size: var(--sg-text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--sg-muted);
+  background: var(--sg-desk);
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-pill);
+  padding: 0.05rem 0.55rem;
+}
+.disclosure-panel {
+  padding: 0.25rem 0.5rem 0.75rem;
+}
+.disclosure + .disclosure {
+  border-top: 1px solid var(--sg-border);
+}
+
+/* Notices: one sentence, opaque fill, colored border, icon + text (never color alone). */
+.notice {
+  --notice-bg: var(--sg-info-bg);
+  --notice-border: var(--sg-info-border);
+  --notice-icon: var(--sg-info-icon);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sg-space-3);
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  margin: 0 0 var(--sg-space-3);
+  color: var(--sg-ink);
+  background: var(--notice-bg);
+  border: 1px solid var(--notice-border);
+  border-left-width: 6px;
+  border-radius: var(--sg-radius-sm);
+}
+.notice-warn {
+  --notice-bg: var(--sg-warn-bg);
+  --notice-border: var(--sg-warn-border);
+  --notice-icon: var(--sg-warn-icon);
+}
+.notice-error {
+  --notice-bg: var(--sg-error-bg);
+  --notice-border: var(--sg-error-border);
+  --notice-icon: var(--sg-error-icon);
+}
+.notice-success {
+  --notice-bg: var(--sg-ok-bg);
+  --notice-border: var(--sg-ok-border);
+  --notice-icon: var(--sg-ok-icon);
+}
+.notice-icon {
+  color: var(--notice-icon);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.notice-body {
+  min-width: 0;
+}
+.notice-body p {
+  margin: 0;
+}
+.notice-dismiss {
+  --tile-bg: var(--notice-bg);
+  --tile-bg-hover: var(--sg-tile);
+  --tile-fg: var(--sg-ink);
+}
+.notice-dismiss:hover {
+  --tile-fg: var(--sg-ink);
+}
+.notices {
+  margin-bottom: var(--sg-space-3);
+}
+
+/* ---- 9. Shell -------------------------------------------------------------- */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.app-main {
+  flex: 1 1 auto;
+  width: 100%;
+}
+/* The skip-link target: quiet after a pointer, ringed after a keyboard (never removed for :focus-visible). */
+.app-main:focus:not(:focus-visible) {
+  outline: none;
+}
+.skip-link {
+  position: absolute;
+  left: 0.5rem;
+  top: -100px;
+  z-index: 20;
+  padding: 0.75rem 1rem;
+  min-height: var(--sg-tile-sm);
+  background: var(--sg-paper);
+  color: var(--sg-link);
+  border: 2px solid var(--sg-accent);
+  border-radius: var(--sg-radius-sm);
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 0.5rem;
+}
+
+/* Header: logo | hairline | tagline over app name | right slot. A landmark, not sticky. */
+.sg-header {
+  background: var(--sg-paper);
+  border-bottom: 1px solid var(--sg-border);
+}
+.sg-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sg-space-3) var(--sg-space-4);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sg-space-3) var(--sg-space-4);
+}
+.sg-header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-4);
+  min-width: 0;
+}
+.sg-header-logo-link {
+  display: inline-flex;
+  border-radius: var(--sg-radius-sm);
+}
+.sg-logo-plate {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sg-logo-plate);
+  border-radius: var(--sg-radius-sm);
+  padding: 0.25rem 0.375rem;
+}
+.sg-header-logo {
+  display: block;
+  height: 2.75rem; /* ≈ 44 px */
+  width: auto;
+}
+.sg-header-hairline {
+  width: 1px;
+  align-self: stretch;
+  min-height: 2.75rem;
+  background: var(--sg-border-strong);
+  flex: 0 0 auto;
+}
+.sg-header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+.sg-header-tagline {
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+  line-height: 1.2;
+  margin: 0;
+}
+.sg-header-name {
+  font-family: var(--sg-font-display);
+  font-weight: 600;
+  font-size: var(--sg-text-xl);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--sg-ink);
+  margin: 0;
+}
+.sg-header-slot {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+}
+
+.app-footer {
+  padding: var(--sg-space-5) var(--sg-space-4);
+  text-align: center;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+}
+.app-footer p {
+  margin: 0;
+}
+
+/* ---- 10. Step strip -------------------------------------------------------- */
+
+/* The editorial header: four step tiles and a hairline progress rule. */
+.step-strip {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sg-space-4) var(--sg-space-4) 0;
+}
+.step-strip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sg-space-2);
+}
+/* Each step is a flex box so its tile stretches to the row's height: all four
+   indicators stay the same height even when one label wraps. */
+.step {
+  min-width: 0;
+  display: flex;
+}
+/* Every step reads as a tile; only current and completed are filled/bordered. */
+.step-tile {
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+  width: 100%;
+  min-height: var(--sg-tile-md);
+  padding: 0.4rem 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  color: var(--sg-muted);
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: var(--sg-radius-tile);
+}
+.step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.step-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* Current: accent fill. */
+.step.is-current .step-tile {
+  color: var(--sg-tile-primary-fg);
+  background-color: var(--sg-tile-primary);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, var(--sg-sheen)) 0%,
+    rgba(255, 255, 255, 0) 45%
+  );
+  border-color: var(--sg-tile-primary);
+  box-shadow: inset 0 1px 0 var(--sg-sheen-line), var(--sg-shadow-tile);
+}
+.step.is-current .step-badge {
+  border-color: currentColor;
+}
+/* Completed: a button that jumps back; paper fill, accent border and check. */
+.step.is-done .step-tile {
+  color: var(--sg-accent);
+  background: var(--sg-paper);
+  border-color: var(--sg-accent);
+  box-shadow: var(--sg-shadow-tile);
+  cursor: pointer;
+  transition:
+    transform var(--sg-motion-fast) var(--sg-ease),
+    box-shadow var(--sg-motion-fast) var(--sg-ease);
+}
+[data-bs-theme='dark'] .step.is-done .step-tile {
+  background: var(--sg-tile);
+}
+.step.is-done .step-tile:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--sg-shadow-tile-hover);
+}
+.step.is-done .step-tile:active {
+  transform: translateY(1px);
+  background: var(--sg-tile-press);
+}
+.step.is-done .step-badge {
+  background: var(--sg-accent);
+  color: var(--sg-accent-fg);
+  border-color: var(--sg-accent);
+}
+/* The check draws on when a step completes (≤ 200 ms). */
+.step-check {
+  animation: sg-check-in var(--sg-motion) var(--sg-ease);
+}
+@keyframes sg-check-in {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+/* The hairline progress rule beneath the strip (decorative). */
+.step-rule {
+  height: 3px;
+  margin-top: var(--sg-space-3);
+  background: var(--sg-rule-track);
+  border-radius: var(--sg-radius-pill);
+  overflow: hidden;
+}
+.step-rule-fill {
+  height: 100%;
+  background: var(--sg-rule);
+  border-radius: var(--sg-radius-pill);
+  transition: width var(--sg-motion) var(--sg-ease);
+}
+
+/* ---- 11. Wizard frame ------------------------------------------------------ */
+
+/* One step per screen. Centered, 1200 px max. */
+.wizard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sg-space-5) var(--sg-space-4) var(--sg-space-7);
+}
+.wizard-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sg-space-5);
+}
+.wizard-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sg-space-2);
+}
+.wizard-title {
+  font-size: var(--sg-text-3xl);
+  margin: 0;
+}
+/* Focus lands here on every step change: quiet after a pointer, ringed after a keyboard (2.4.7). */
+.wizard-title:focus:not(:focus-visible) {
+  outline: none;
+}
+.wizard-intro {
+  margin: 0;
+  color: var(--sg-muted);
+  font-size: var(--sg-text-lg);
+  max-width: 60ch;
+}
+.wizard-body {
+  min-width: 0;
+}
+/* Two-column steps: stack under 992 px (see §14). */
+.wizard-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sg-space-5);
+  align-items: start;
+}
+.wizard-col {
+  min-width: 0;
+}
+/* Column headings: used on <h3> and on <legend>, so it sets everything (Bootstrap's legend is 400 weight and floats). */
+.wizard-col-title {
+  float: none;
+  width: auto;
+  padding: 0;
+  font-family: var(--sg-font-ui);
+  font-weight: 700;
+  font-size: var(--sg-text-xl);
+  line-height: var(--sg-leading-tight);
+  color: var(--sg-ink);
+  margin: 0 0 var(--sg-space-3);
+}
+/* A legend may hold a heading (so the section is a heading-navigation stop too); it takes the legend's type. */
+.wizard-col-title > h3 {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+}
+/* The nav bar: Back left, Next right. In flow, not sticky, so it never covers focus. */
+/* The step's nav bar: once under the heading (always in view) and once at the foot. */
+.wizard-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sg-space-3) var(--sg-space-4);
+}
+.wizard-nav-top {
+  padding-bottom: var(--sg-space-4);
+  border-bottom: 1px solid var(--sg-border);
+}
+.wizard-nav-bottom {
+  padding-top: var(--sg-space-5);
+  border-top: 1px solid var(--sg-border);
+}
+.wizard-nav-back {
+  display: flex;
+}
+.wizard-nav-next {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--sg-space-2) var(--sg-space-4);
+  margin-left: auto;
+}
+.wizard-nav-hint {
+  margin: 0;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+  max-width: 32ch;
+  text-align: right;
+}
+.wizard-nav-count,
+.wizard-nav-aside {
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The full-bleed band (step 1's hero). `.wizard-shell` is the labelled section;
+   `.wizard-band` is a normal block child, so it spans <main> by flow alone (no
+   100vw, no negative horizontal margins, so the page never scrolls sideways);
+   `.wizard-band-inner` carries the wizard's max-width and side padding. Navy
+   with paper text in both themes (band tokens), the attribution in light blue.
+   The band's extra bottom padding is the overlap allowance for a sheet that
+   pulls up over its edge (UploadStep.css). */
+.wizard-shell {
+  display: block;
+  width: 100%;
+}
+.wizard-band {
+  background: var(--sg-band-bg);
+  color: var(--sg-band-fg);
+  padding-bottom: var(--sg-space-8);
+  --sg-focus: var(--sg-band-focus); /* the focus ring on the heading: paper on navy, never navy on navy */
+}
+.wizard-band-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sg-space-6) var(--sg-space-4) var(--sg-space-5);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sg-space-5);
+  align-items: center;
+}
+.wizard-band-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sg-space-2);
+  min-width: 0;
+}
+.wizard-band .wizard-title,
+.wizard-band .wizard-intro,
+.wizard-band .wizard-kicker {
+  color: var(--sg-band-fg);
+}
+.wizard-band .wizard-intro,
+.wizard-band .wizard-kicker {
+  color: var(--sg-band-muted);
+}
+.wizard-kicker {
+  margin: 0;
+  font-size: var(--sg-text-sm);
+}
+.wizard-band-aside {
+  min-width: 0;
+}
+.wizard-band-aside:empty {
+  display: none;
+}
+
+/* ---- 12. Hero (step 1) ----------------------------------------------------- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--sg-space-5);
+  padding-top: var(--sg-space-5);
+}
+.hero-title {
+  font-size: var(--sg-text-hero);
+  font-weight: 600;
+  margin: 0;
+  max-width: 16ch;
+}
+.hero-promise {
+  margin: 0;
+  font-size: var(--sg-text-lg);
+  color: var(--sg-muted);
+  max-width: 48ch;
+}
+/* The drop target: a dashed sheet with the stacking-pages motif. */
+.hero-drop {
+  width: 100%;
+  max-width: 44rem;
+  padding: var(--sg-space-6) var(--sg-space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sg-space-4);
+  transition: border-color var(--sg-motion-fast) var(--sg-ease), background-color var(--sg-motion-fast) var(--sg-ease);
+}
+.hero-drop.is-dragging {
+  border-style: solid;
+  border-color: var(--sg-accent);
+  background: var(--sg-tint);
+}
+.hero-drop.is-busy {
+  border-style: solid;
+}
+.hero-art {
+  width: 9rem;
+  height: auto;
+  color: var(--sg-accent);
+}
+.hero-drop-title {
+  font-size: var(--sg-text-xl);
+  font-weight: 700;
+  margin: 0;
+}
+.hero-drop-or {
+  margin: 0;
+  color: var(--sg-muted);
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sg-space-3);
+}
+.hero-status {
+  margin: 0;
+  font-weight: 600;
+}
+.hero-fineprint {
+  width: 100%;
+  max-width: 44rem;
+  text-align: left;
+  font-size: var(--sg-text-sm);
+}
+.hero-fineprint ol,
+.hero-fineprint ul {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.5rem;
+}
+.hero-fineprint li {
+  margin-bottom: 0.3rem;
+}
+
+/* ---- 13. Card rows (arrange list) ---------------------------------------- */
+
+/* "Your syllabus": ordered index cards with Move up / Move down / Remove. */
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sg-space-2);
+}
+.card-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sg-space-2) var(--sg-space-3);
+  min-height: var(--sg-tile-lg);
+  padding: 0.5rem 0.75rem;
+  background: var(--sg-tile);
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sm);
+  box-shadow: var(--sg-shadow-tile);
+}
+.card-row.is-dragging {
+  border-color: var(--sg-accent);
+}
+/* The card's number is the shared .pos-badge (section 6), so steps 2 and 3 match. */
+.card-index {
+  margin-inline-end: 0.25rem;
+}
+.card-title {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.card-actions {
+  display: inline-flex;
+  gap: var(--sg-space-1);
+  margin-left: auto;
+}
+
+/* ---- 14. Responsive -------------------------------------------------------- */
+
+@media (min-width: 992px) {
+  .wizard-columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  /* The band: title block | aside (the hero's cover card), the aside at its own width. */
+  .wizard-band-inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--sg-space-7);
+  }
+  .wizard-columns-wide-left {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+  .wizard-columns-wide-right {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
+
+@media (max-width: 767.98px) {
+  /* Primary actions go full width; Next sits above Back so it is reached first by touch. */
+  .wizard-nav {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .wizard-nav-next {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .wizard-nav-next .tile {
+    width: 100%;
+  }
+  .wizard-nav-hint {
+    text-align: left;
+    max-width: none;
+  }
+  .wizard-nav-back .tile {
+    width: 100%;
+  }
+  .sg-header-slot {
+    margin-left: 0;
+    width: 100%;
+  }
+  .sg-header-slot .tile {
+    width: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Compact single-row strip: badges only, except the current step keeps its label. */
+  .step-strip-list {
+    gap: var(--sg-space-1);
+  }
+  .step-tile {
+    justify-content: center;
+    padding-inline: 0.4rem;
+  }
+  .step:not(.is-current) .step-label {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  .step.is-current {
+    grid-column: span 2;
+  }
+  .step-strip-list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .sg-header-hairline {
+    display: none;
+  }
+  .wizard-title {
+    font-size: var(--sg-text-2xl);
+  }
+  .tile-lg {
+    padding-inline: 1.25rem;
+  }
+}
+
+/* ---- 14b. App notices and progress ---------------------------------------- */
+
+/* Notices above a step (errors on any step; §14 page notices on step 3). */
+.app-notices {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--sg-space-4) var(--sg-space-4) 0;
+}
+.app-notices .notice + .notice {
+  margin-top: var(--sg-space-2);
+}
+
+/* Determinate progress: caption, opaque accent fill on a track, tabular count. */
+.sg-progress {
+  display: grid;
+  grid-template-columns: auto minmax(8rem, 1fr) auto;
+  align-items: center;
+  gap: var(--sg-space-2) var(--sg-space-3);
+  min-width: 16rem;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-ink);
+}
+.sg-progress-caption {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sg-progress-track {
+  display: block;
+  height: 0.5rem;
+  background: var(--sg-rule-track);
+  border: 1px solid var(--sg-border-strong);
+  border-radius: var(--sg-radius-pill);
+  overflow: hidden;
+}
+.sg-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--sg-accent);
+  border-radius: var(--sg-radius-pill);
+  transition: width var(--sg-motion) var(--sg-ease);
+}
+.sg-progress-text {
+  color: var(--sg-muted);
+  white-space: nowrap;
+}
+@media (max-width: 575.98px) {
+  .sg-progress {
+    grid-template-columns: 1fr auto;
+  }
+  .sg-progress-track {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---- 15. Reduced motion ---------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  [data-bs-theme='dark'] {
+    --sg-motion-fast: 0ms;
+    --sg-motion: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+  .tile:hover,
+  .tile:active,
+  .step.is-done .step-tile:hover,
+  .step.is-done .step-tile:active {
+    transform: none;
+  }
+  .spinner-border {
+    animation: none !important;
+    border-right-color: transparent !important;
+  }
+}

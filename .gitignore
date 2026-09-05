@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output (regenerate with `npm run build`)
+dist/
+
+# Tool caches
+.vite/
+.vitest/
+*.tsbuildinfo
+
+# Local course exports used for dev (`?load=/__dev/<file>.imscc`)
+__dev/
+*.imscc
+
+# Environment / secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

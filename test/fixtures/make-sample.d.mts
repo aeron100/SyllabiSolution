@@ -1,0 +1,30 @@
+/** Types for make-sample.mjs so the TypeScript tests can import it. */
+export declare const IDS: {
+  pageWelcome: string;
+  pagePolicies: string;
+  pageSchedule: string;
+  pageGrading: string;
+  syllabus: string;
+  settings: string;
+  assign1: string;
+  assign2: string;
+  discussion: string;
+  discussionMeta: string;
+  announcement: string;
+  announcementMeta: string;
+  quiz: string;
+  quizMeta: string;
+  tool: string;
+  link: string;
+  imageDiagram: string;
+  imageLogo: string;
+  pdf: string;
+  notes: string;
+  module1: string;
+  module2: string;
+  groupAssignments: string;
+  groupParticipation: string;
+};
+export declare function makePng(width: number, height: number, rgb: [number, number, number]): Uint8Array;
+export declare function sampleEntries(): Record<string, Uint8Array>;
+export declare function buildSample(): Uint8Array;

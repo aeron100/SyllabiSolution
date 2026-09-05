@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Step 2 — Choose pages. Layout only: every color, size, and motion value
+   comes from the design tokens in src/styles/tokens.css (via app.css).
+
+   Left column, top to bottom: the "Content types" disclosure, the shown
+   toolbar, the pages pane (a sheet that scrolls on its own). Right column:
+   the preview, sticky on wide screens. One DOM order for both layouts.
+   ========================================================================== */
+
+/* ---- Content types: the kind chips behind a disclosure ---------------------- */
+.choose-kinds {
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sm);
+  background: var(--sg-paper);
+}
+.choose-kinds .disclosure-btn {
+  font-size: var(--sg-text-md);
+}
+.choose-kinds .choose-chips {
+  margin: var(--sg-space-1) 0 0;
+}
+
+/* ---- Shown toolbar: two 44 px tiles and a quiet count ------------------------ */
+.choose-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sg-space-2) var(--sg-space-3);
+  margin: var(--sg-space-3) 0;
+}
+.choose-toolbar-count {
+  margin-left: auto;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+}
+
+/* ---- The pages pane -----------------------------------------------------------
+ * The sheet itself scrolls, so its border frames the scroller. Height is bounded
+ * by the viewport (45 vh stacked; see the wide block). A "more below" cue is
+ * painted with backgrounds only: two paper-colored fades attached to the
+ * content (`local`) slide over a fixed (`scroll`) shadow at the bottom edge,
+ * so the shadow shows only while there is content below the fold. No JS.
+ * Scroll chaining stays on (no overscroll-behavior): at the pane's end a wheel
+ * or a swipe carries on to the page, so the preview and Back/Next below are
+ * always reachable from the pane.
+ */
+.choose-tree-pane {
+  padding: var(--sg-space-2);
+  background: var(--sg-paper);
+}
+/* The pane is plain paper in normal flow: the page scrolls, the preview beside it sticks (like step 3). */
+.choose-tree {
+  min-width: 0;
+}
+/* When the filter hides every row the pane frames the sentence; no second dashed box. */
+.choose-tree-pane > .choose-tree-empty {
+  border: 0;
+  margin: 0;
+}
+
+/* ---- Preview column: title, hint, then the paper sheet holding the frame ----- */
+.choose-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sg-space-2);
+  min-width: 0;
+}
+.choose-preview-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.45rem;
+  margin-bottom: 0;
+}
+.choose-preview-dot {
+  color: var(--sg-muted);
+}
+.choose-preview-title {
+  font-family: var(--sg-font-ui);
+  font-weight: 600;
+  font-size: var(--sg-text-md, 1rem);
+  color: var(--sg-muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.choose-preview-hint {
+  margin: 0 0 var(--sg-space-1);
+}
+/*
+ * One fixed height in every state (empty, loading, error, ready), so the sheet
+ * never grows or shrinks under the page while a preview reloads and, stacked,
+ * it is the same scroll target before and after a preview lands. Never shorter
+ * than a readable frame on a short viewport.
+ */
+.choose-preview-sheet {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: max(55vh, 18rem);
+}
+.choose-preview-status {
+  display: flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+  margin: 0;
+  padding: var(--sg-space-3) var(--sg-space-4);
+  font-size: var(--sg-text-sm);
+  font-weight: 600;
+  color: var(--sg-muted);
+  border-bottom: 1px solid var(--sg-border);
+}
+.choose-preview-notice {
+  padding: var(--sg-space-3) var(--sg-space-3) 0;
+}
+.choose-preview-notice .notice {
+  margin-bottom: 0;
+}
+/* The frame fills whatever the status bar and a notice leave, so they take space from it rather than adding to the sheet. */
+.choose-preview-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  border-radius: 0;
+}
+.choose-preview-empty {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--sg-space-4);
+}
+
+/* ---- Wide screens -------------------------------------------------------------
+ * Two columns, tree 52 % / preview 48 %. The tree flows with the page; the
+ * preview sheet is sized to the viewport minus the chrome above it (app
+ * header, step strip, step heading, nav bar, the disclosure and toolbar),
+ * never under 24 rem, and sticks while the page scrolls.
+ */
+@media (min-width: 992px) {
+  .wizard-columns.choose-columns {
+    --choose-chrome-header: 4.25rem; /* .sg-header: brand row and its padding */
+    --choose-chrome-strip: 4rem; /* .step-strip: 48 px tiles plus its top padding */
+    --choose-chrome-head: 7.75rem; /* .wizard top padding, step title, intro, column gap */
+    --choose-chrome-tools: 6.5rem; /* Content types disclosure, shown toolbar, their gaps */
+    --choose-chrome-tail: 1.5rem; /* breathing room under the pane */
+    --choose-pane-height: max(
+      24rem,
+      calc(
+        100vh - var(--choose-chrome-header) - var(--choose-chrome-strip) - var(--choose-chrome-head) - var(--choose-chrome-tools) -
+          var(--choose-chrome-tail)
+      )
+    );
+    grid-template-columns: minmax(0, 52fr) minmax(0, 48fr);
+    gap: var(--sg-space-5);
+  }
+  .choose-col-tree {
+    min-width: 0;
+  }
+  /*
+   * The preview sticks while the tree column scrolls. It is its OWN grid
+   * item (the right track) and `align-self: start` sizes it to its content,
+   * so sticky positioning can only move it within that column — it can never
+   * overlap the tree or any focused control (WCAG 2.2 2.4.11 Focus not
+   * obscured). Same pattern as step 3 (arrange.css).
+   */
+  .choose-preview {
+    position: sticky;
+    top: var(--sg-space-4);
+    align-self: start;
+  }
+  .choose-preview-sheet {
+    height: var(--choose-pane-height);
+  }
+}

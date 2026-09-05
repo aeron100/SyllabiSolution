@@ -1,0 +1,292 @@
+/* ==========================================================================
+   Syllabus Generator — design tokens.
+   Coastline College brand on a desk-and-paper metaphor (DESIGN.md §10).
+   Every pair used for text passes 4.5:1 and every boundary passes 3:1 in
+   both themes (verified with a WCAG contrast script; see the notes beside
+   each value). Light blues are surfaces and highlights only, never text on
+   white. Navy is never text on dark.
+   Loaded by app.css. Bootstrap variables are overridden here so nothing
+   Bootstrap-blue leaks through.
+   ========================================================================== */
+
+/* ---- Light (default) ------------------------------------------------------ */
+
+:root,
+[data-bs-theme='light'] {
+  color-scheme: light;
+
+  /* Brand (Coastline College brand guide) */
+  --sg-navy: #003764;        /* Primary Navy, 2955C. 13.4:1 on white */
+  --sg-navy-hover: #0a4a80;  /* white label 9.3:1 */
+  --sg-navy-press: #002745;  /* white label 15.6:1 */
+  --sg-blue-1: #6bc4e8;      /* Secondary Blue, 297C. Surface/highlight only */
+  --sg-blue-2: #3cb4e5;      /* Secondary Blue, 298C. Surface/highlight only */
+
+  /* Desk, paper, ink */
+  --sg-desk: #e6ebf2;        /* the work surface (body): a shade deeper than paper so sheets and tiles lift off it */
+  --sg-paper: #f8fafc;       /* sheets: previews, result, secondary tiles */
+  --sg-ink: #1c1917;         /* 15.5:1 on paper */
+  --sg-muted: #4b5563;       /* 7.2:1 on paper, 6.6:1 on desk */
+  --sg-tint: #e0f3fa;        /* light-blue surface behind ink text (ink 13.6:1) */
+  --sg-accent: var(--sg-navy);        /* text, links, primary fills, current step */
+  --sg-accent-fg: #ffffff;            /* label on the accent fill */
+  --sg-link: var(--sg-navy);
+  --sg-link-hover: var(--sg-navy-hover);
+  --sg-success: #047857;     /* 5.0:1 on paper */
+
+  /* Surfaces: tiles are opaque, always */
+  --sg-tile: #ffffff;
+  --sg-tile-hover: #f1f5f9;
+  --sg-tile-press: #e2e8f0;
+  --sg-tile-disabled: #e2e8f0;
+  --sg-tile-disabled-fg: #4a5568;      /* 6.4:1 on the disabled fill (≥ 3:1 required) */
+  --sg-tile-primary: var(--sg-navy);
+  --sg-tile-primary-hover: var(--sg-navy-hover);
+  --sg-tile-primary-press: var(--sg-navy-press);
+  --sg-tile-primary-fg: #ffffff;
+  --sg-row-hover: #f1f5f9;
+  --sg-row-focus: #e0f3fa;
+  --sg-logo-plate: transparent;        /* dark mode puts a paper plate under the logo */
+  --sg-hero-shield: var(--sg-navy);    /* hero motif: shield fill (≥ 3:1 on paper) and its wave */
+  --sg-hero-wave: var(--sg-blue-1);    /* 6.2:1 on navy */
+  --sg-cover-plate: #ffffff;           /* hero cover card: paper plate under the navy mark on its band (decorative) */
+
+  /* The hero band (step 1): navy with paper text in BOTH themes, like the styled cover it echoes.
+     Literal values, not var(--sg-paper), because dark mode's paper is dark. */
+  --sg-band-bg: #003764;               /* Primary Navy */
+  --sg-band-fg: #f8fafc;               /* light paper: 13.4:1 on the band */
+  --sg-band-muted: #6bc4e8;            /* Secondary Blue 297C for the attribution and kicker: 6.2:1 on the band */
+  --sg-band-focus: #f8fafc;            /* focus ring on the band (the navy ring would vanish) */
+  /* The decorative cover mock is a printed page, always white with a navy band (documents render on white). */
+  --sg-cover-paper: #ffffff;
+  --sg-cover-band: #003764;
+  --sg-cover-fg: #f8fafc;              /* paper text inside the navy band */
+  --sg-cover-line: #cbd5e1;            /* grey text lines on the white page */
+
+  /* Borders: hairlines are decorative; -strong is for control boundaries (≥ 3:1) */
+  --sg-border: #d5dbe3;
+  --sg-border-strong: #64748b;         /* 4.6:1 on paper, 4.2:1 on desk */
+  --sg-rule: var(--sg-navy);           /* progress rule fill */
+  --sg-rule-track: #d5dbe3;
+
+  /* Sheen: a white highlight painted over the opaque tile fill (top 45%) */
+  --sg-sheen: 0.14;
+  --sg-sheen-line: rgba(255, 255, 255, 0.28);
+
+  /* Shadows */
+  /* Shadows: a contact shadow plus a soft ambient one, deep enough that paper reads as lifted off the desk. */
+  --sg-shadow-tile: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 20px rgba(15, 23, 42, 0.1);
+  --sg-shadow-tile-hover: 0 2px 4px rgba(15, 23, 42, 0.08), 0 14px 32px rgba(15, 23, 42, 0.16);
+  --sg-shadow-sheet: 0 2px 4px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 23, 42, 0.14);
+
+  /* Notices (opaque fills; ink text on every fill ≥ 4.5:1; borders ≥ 3:1 on paper) */
+  --sg-info-bg: #e0f3fa;   --sg-info-border: #003764; --sg-info-icon: #003764;
+  --sg-warn-bg: #fef3c7;   --sg-warn-border: #b45309; --sg-warn-icon: #92400e;
+  --sg-error-bg: #fee2e2;  --sg-error-border: #b91c1c; --sg-error-icon: #991b1b;
+  --sg-ok-bg: #d1fae5;     --sg-ok-border: #047857;   --sg-ok-icon: #065f46;
+
+  /* Kind tags: bg / fg / border per kind. fg on bg ≥ 6.8:1; border on paper ≥ 3:1 */
+  --sg-kind-page-bg: #dbe8fb;         --sg-kind-page-fg: #163a6b;         --sg-kind-page-border: #3b6fb5;
+  --sg-kind-syllabus-bg: #e9def8;     --sg-kind-syllabus-fg: #45237a;     --sg-kind-syllabus-border: #7a4fc0;
+  --sg-kind-assignment-bg: #fde7cc;   --sg-kind-assignment-fg: #6b3a05;   --sg-kind-assignment-border: #b8651a;
+  --sg-kind-discussion-bg: #d5f0ec;   --sg-kind-discussion-fg: #0d4f47;   --sg-kind-discussion-border: #1f8a7c;
+  --sg-kind-announcement-bg: #fadbe6; --sg-kind-announcement-fg: #7a1a3e; --sg-kind-announcement-border: #c2386c;
+  --sg-kind-quiz-bg: #fbdcd8;         --sg-kind-quiz-fg: #7a1d15;         --sg-kind-quiz-border: #c4392b;
+  --sg-kind-link-bg: #e0e3fb;         --sg-kind-link-fg: #2d3480;         --sg-kind-link-border: #5561c9;
+  --sg-kind-tool-bg: #e2e6ea;         --sg-kind-tool-fg: #2f3a47;         --sg-kind-tool-border: #5b6b7d;
+  --sg-kind-file-bg: #d9f0d9;         --sg-kind-file-fg: #1d5a20;         --sg-kind-file-border: #3a8a3f;
+  --sg-kind-other-bg: #e8e8e8;        --sg-kind-other-fg: #3f3f3f;        --sg-kind-other-border: #777777;
+
+  /* Focus ring: 3 px accent, offset 2 px so it never vanishes against a fill */
+  --sg-focus: var(--sg-navy);
+  --sg-focus-width: 3px;
+  --sg-focus-offset: 2px;
+
+  /* Radii */
+  --sg-radius-tile: 14px;
+  --sg-radius-sheet: 6px;
+  --sg-radius-pill: 999px;
+  --sg-radius-sm: 6px;
+
+  /* Spacing scale (rem) */
+  --sg-space-1: 0.25rem;
+  --sg-space-2: 0.5rem;
+  --sg-space-3: 0.75rem;
+  --sg-space-4: 1rem;
+  --sg-space-5: 1.5rem;
+  --sg-space-6: 2rem;
+  --sg-space-7: 3rem;
+  --sg-space-8: 4rem;
+
+  /* Type */
+  --sg-font-display: 'Fraunces Variable', Fraunces, Georgia, 'Times New Roman', serif;
+  --sg-font-ui: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --sg-text-xs: 0.75rem;
+  --sg-text-sm: 0.875rem;
+  --sg-text-md: 1rem;
+  --sg-text-lg: 1.125rem;
+  --sg-text-xl: 1.375rem;
+  --sg-text-2xl: 1.75rem;
+  --sg-text-3xl: 2.25rem;
+  --sg-text-hero: clamp(2.5rem, 2rem + 2.5vw, 3.75rem);
+  --sg-leading-tight: 1.15;
+  --sg-leading: 1.5;
+
+  /* Control sizes (WCAG 2.2 2.5.8: nothing under 44 px) */
+  --sg-tile-lg: 3.5rem;   /* 56 px: primary actions */
+  --sg-tile-md: 3rem;     /* 48 px: secondary actions */
+  --sg-tile-sm: 2.75rem;  /* 44 px: minimum anywhere */
+  --sg-chip: 2.5rem;      /* 40 px pill; a 2 px ::before halo makes the hit area 44 px */
+  --sg-control: 2.75rem;  /* form controls */
+
+  /* Motion (all ≤ 200 ms; zeroed under reduced motion) */
+  --sg-motion-fast: 120ms;
+  --sg-motion: 180ms;
+  --sg-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- Bootstrap overrides: no Bootstrap blue anywhere ---- */
+  --bs-body-bg: var(--sg-desk);
+  --bs-body-bg-rgb: 230, 235, 242;
+  --bs-body-color: var(--sg-ink);
+  --bs-body-color-rgb: 28, 25, 23;
+  --bs-body-font-family: var(--sg-font-ui);
+  --bs-emphasis-color: var(--sg-ink);
+  --bs-secondary-color: var(--sg-muted);
+  --bs-secondary-color-rgb: 75, 85, 99;
+  --bs-secondary-bg: var(--sg-paper);
+  --bs-tertiary-bg: var(--sg-tile-hover);
+  --bs-tertiary-color: var(--sg-muted);
+  --bs-heading-color: var(--sg-ink);
+  --bs-border-color: var(--sg-border);
+  --bs-border-color-translucent: var(--sg-border);
+  --bs-primary: var(--sg-navy);
+  --bs-primary-rgb: 0, 55, 100;
+  --bs-primary-text-emphasis: var(--sg-navy);
+  --bs-primary-bg-subtle: var(--sg-tint);
+  --bs-primary-border-subtle: var(--sg-navy);
+  --bs-link-color: var(--sg-link);
+  --bs-link-color-rgb: 0, 55, 100;
+  --bs-link-hover-color: var(--sg-link-hover);
+  --bs-link-hover-color-rgb: 10, 74, 128;
+  --bs-focus-ring-width: var(--sg-focus-width);
+  --bs-focus-ring-opacity: 1;
+  --bs-focus-ring-color: var(--sg-focus);
+  --bs-form-check-bg: var(--sg-tile);
+  --bs-form-valid-color: var(--sg-success);
+  --bs-form-valid-border-color: var(--sg-success);
+  --bs-form-invalid-color: var(--sg-error-border);
+  --bs-form-invalid-border-color: var(--sg-error-border);
+  --bs-border-radius: var(--sg-radius-sm);
+}
+
+/* ---- Dark ------------------------------------------------------------------ */
+
+[data-bs-theme='dark'] {
+  color-scheme: dark;
+
+  /* Brand: the light blues carry the accent role; navy is never text here */
+  --sg-navy: #003764;
+  --sg-navy-hover: #0a4a80;
+  --sg-navy-press: #002745;
+  --sg-blue-1: #6bc4e8;      /* 9.9:1 on desk, 8.5:1 on paper */
+  --sg-blue-2: #3cb4e5;
+
+  --sg-desk: #1a1d21;        /* charcoal, not black */
+  --sg-paper: #23272d;       /* cool grey sheet */
+  --sg-ink: #e7e9ec;         /* 13.6:1 on paper */
+  --sg-muted: #a9b1bb;       /* 7.0:1 on paper, 5.6:1 on tile-hover */
+  --sg-tint: #163448;        /* navy-leaning surface (ink 11.4:1, blue-1 7.2:1) */
+  --sg-accent: var(--sg-blue-1);
+  --sg-accent-fg: #0f1720;             /* 9.6:1 on blue-1 */
+  --sg-link: var(--sg-blue-1);
+  --sg-link-hover: #86cfec;
+  --sg-success: #7ee0b5;     /* 9.5:1 on paper */
+
+  --sg-tile: #2a2f36;
+  --sg-tile-hover: #343a43;
+  --sg-tile-press: #1e2226;
+  --sg-tile-disabled: #2a2f36;
+  --sg-tile-disabled-fg: #959fab;      /* 5.0:1 on the disabled fill (inert tiles stay focusable, so their label is text) */
+  --sg-tile-primary: var(--sg-blue-1);
+  --sg-tile-primary-hover: #86cfec;
+  --sg-tile-primary-press: #52b8e2;
+  --sg-tile-primary-fg: #0f1720;       /* dark label; 9.6:1 on blue-1, 8.1:1 on press */
+  --sg-row-hover: #2a2f36;
+  --sg-row-focus: #163448;
+  --sg-logo-plate: #f8fafc;            /* keeps the navy mark legible on charcoal */
+  --sg-hero-shield: var(--sg-blue-1);  /* navy vanishes on the dark sheet; blue-1 is 7.6:1 on paper */
+  --sg-hero-wave: #0f1720;             /* 9.2:1 on blue-1 */
+  --sg-cover-plate: #f8fafc;           /* same light plate, so the navy mark stays legible on the blue-1 band */
+
+  /* The hero band stays navy with paper text; the cover mock stays a white page. */
+  --sg-band-bg: #003764;
+  --sg-band-fg: #f8fafc;
+  --sg-band-muted: #6bc4e8;
+  --sg-band-focus: #f8fafc;
+  --sg-cover-paper: #ffffff;
+  --sg-cover-band: #003764;
+  --sg-cover-fg: #f8fafc;
+  --sg-cover-line: #cbd5e1;
+
+  --sg-border: #3b424b;
+  --sg-border-strong: #8b95a1;         /* 5.4:1 on paper, 4.7:1 on tile */
+  --sg-rule: var(--sg-blue-1);
+  --sg-rule-track: #3b424b;
+
+  --sg-sheen: 0.08;                    /* lower so muted labels stay ≥ 4.5:1 under it */
+  --sg-sheen-line: rgba(255, 255, 255, 0.14);
+
+  /* Same geometry as light, in black and stronger, since charcoal swallows a faint shadow. */
+  --sg-shadow-tile: 0 1px 2px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.45);
+  --sg-shadow-tile-hover: 0 2px 4px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.6);
+  --sg-shadow-sheet: 0 2px 4px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  --sg-info-bg: #163448;   --sg-info-border: #6bc4e8; --sg-info-icon: #6bc4e8;
+  --sg-warn-bg: #3b2a08;   --sg-warn-border: #f0b429; --sg-warn-icon: #f7c95c;
+  --sg-error-bg: #3f1416;  --sg-error-border: #f08a8a; --sg-error-icon: #f5a3a3;
+  --sg-ok-bg: #0f3325;     --sg-ok-border: #5fd3a0;   --sg-ok-icon: #7ee0b5;
+
+  /* fg on bg ≥ 8.7:1; border on paper and tile ≥ 3:1; fg on paper/tile ≥ 4.5:1 */
+  --sg-kind-page-bg: #1b2f4a;         --sg-kind-page-fg: #bcd4f5;         --sg-kind-page-border: #6d9be0;
+  --sg-kind-syllabus-bg: #2f2247;     --sg-kind-syllabus-fg: #d7c6f5;     --sg-kind-syllabus-border: #a687e0;
+  --sg-kind-assignment-bg: #3f2a10;   --sg-kind-assignment-fg: #f6d3a3;   --sg-kind-assignment-border: #d5904a;
+  --sg-kind-discussion-bg: #123a35;   --sg-kind-discussion-fg: #b3e6df;   --sg-kind-discussion-border: #4fb8a8;
+  --sg-kind-announcement-bg: #45182a; --sg-kind-announcement-fg: #f5c1d3; --sg-kind-announcement-border: #e06b98;
+  --sg-kind-quiz-bg: #46170f;         --sg-kind-quiz-fg: #f5bdb6;         --sg-kind-quiz-border: #e2665a;
+  --sg-kind-link-bg: #23274f;         --sg-kind-link-fg: #c7ccf7;         --sg-kind-link-border: #8a93e6;
+  --sg-kind-tool-bg: #2a323c;         --sg-kind-tool-fg: #cbd5e0;         --sg-kind-tool-border: #8a9bad;
+  --sg-kind-file-bg: #163a18;         --sg-kind-file-fg: #b8e6ba;         --sg-kind-file-border: #62b868;
+  --sg-kind-other-bg: #333333;        --sg-kind-other-fg: #dddddd;        --sg-kind-other-border: #999999;
+
+  --sg-focus: var(--sg-blue-1);
+
+  /* ---- Bootstrap overrides (dark) ---- */
+  --bs-body-bg: var(--sg-desk);
+  --bs-body-bg-rgb: 26, 29, 33;
+  --bs-body-color: var(--sg-ink);
+  --bs-body-color-rgb: 231, 233, 236;
+  --bs-emphasis-color: #ffffff;
+  --bs-secondary-color: var(--sg-muted);
+  --bs-secondary-color-rgb: 169, 177, 187;
+  --bs-secondary-bg: var(--sg-paper);
+  --bs-tertiary-bg: var(--sg-tile);
+  --bs-tertiary-color: var(--sg-muted);
+  --bs-heading-color: var(--sg-ink);
+  --bs-border-color: var(--sg-border);
+  --bs-border-color-translucent: var(--sg-border);
+  --bs-primary: var(--sg-blue-1);
+  --bs-primary-rgb: 107, 196, 232;
+  --bs-primary-text-emphasis: var(--sg-blue-1);
+  --bs-primary-bg-subtle: var(--sg-tint);
+  --bs-primary-border-subtle: var(--sg-blue-1);
+  --bs-link-color: var(--sg-link);
+  --bs-link-color-rgb: 107, 196, 232;
+  --bs-link-hover-color: var(--sg-link-hover);
+  --bs-link-hover-color-rgb: 134, 207, 236;
+  --bs-focus-ring-color: var(--sg-focus);
+  --bs-form-check-bg: var(--sg-tile);
+  --bs-form-valid-color: var(--sg-success);
+  --bs-form-valid-border-color: var(--sg-success);
+  --bs-form-invalid-color: var(--sg-error-border);
+  --bs-form-invalid-border-color: var(--sg-error-border);
+}

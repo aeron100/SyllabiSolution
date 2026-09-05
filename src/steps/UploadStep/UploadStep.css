@@ -1,0 +1,216 @@
+/* Step 1 — the hero (DESIGN.md §10). The wizard frame renders the navy band
+   (kicker, app title, attribution, and the decorative cover card in the
+   aside) full width; this file sizes the type inside it, pulls the drop
+   sheet up over the band's edge, and lays out the four highlight tiles.
+   Tokens only, so light and dark mode need nothing extra here. */
+
+/* ---- The band's type ---- */
+.hero-step .wizard-band-head {
+  align-items: center;
+  text-align: center;
+}
+.hero-step .wizard-band .wizard-title {
+  font-size: var(--sg-text-hero);
+  max-width: 16ch;
+}
+.hero-step .wizard-band .wizard-intro {
+  max-width: 48ch;
+}
+
+/* ---- The body: the drop sheet overlaps the band's bottom edge ---- */
+.hero-step .wizard-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sg-space-5);
+}
+/* Pulls up by exactly the band's bottom padding (app.css .wizard-band), so
+   the paper sits half on navy, half on the desk. Above the band in z so the
+   sheet and its focus rings are never covered. */
+.hero-step .hero-drop {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(-1 * var(--sg-space-8));
+  box-shadow: var(--sg-shadow-sheet);
+  cursor: pointer;
+}
+.hero-step .hero-drop.is-busy {
+  cursor: progress;
+}
+.hero-step .hero-drop .hero-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sg-space-2);
+}
+.hero-step .hero-notice {
+  width: 100%;
+  max-width: 44rem;
+  text-align: left;
+}
+/* Touch-first: on narrow screens the primary tile goes full width. */
+@media (max-width: 575.98px) {
+  .hero-step .hero-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-step .hero-actions .tile {
+    width: 100%;
+  }
+}
+.hero-step .hero-fineprint {
+  width: 100%;
+  max-width: 44rem;
+}
+
+/* ---- Highlights: four paper tiles, no visible heading ---- */
+.hero-step .hero-band {
+  width: 100%;
+  max-width: 64rem;
+  margin-top: var(--sg-space-5);
+}
+/* 1 / 2 / 4 across. Paper (tile fill in dark mode) with the sheen and the
+   tile shadow, on the sheet radius: they read as paper cards, not buttons.
+   Not controls: no widget role, no focus. */
+.hero-step .hero-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sg-space-4);
+}
+.hero-step .hero-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sg-space-3);
+  padding: var(--sg-space-5);
+  text-align: left;
+  color: var(--sg-ink);
+  background-color: var(--sg-paper);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, var(--sg-sheen)) 0%,
+    rgba(255, 255, 255, 0) 45%
+  );
+  border: 1px solid var(--sg-border);
+  border-radius: var(--sg-radius-sheet);
+  box-shadow: inset 0 1px 0 var(--sg-sheen-line), var(--sg-shadow-tile);
+}
+[data-bs-theme='dark'] .hero-step .hero-feature {
+  background-color: var(--sg-tile);
+}
+.hero-step .hero-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--sg-accent);
+  background: var(--sg-tint);
+  border-radius: var(--sg-radius-sm);
+}
+.hero-step .hero-feature-title {
+  margin: 0;
+  font-size: var(--sg-text-lg);
+  font-weight: 700;
+}
+.hero-step .hero-feature-text {
+  margin: 0;
+}
+
+@media (min-width: 576px) {
+  .hero-step .hero-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- The cover card: decorative, in the band's aside, wide screens only ---- */
+.hero-step .hero-cover {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .hero-step .hero-features {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  /* Title block left, card right. */
+  .hero-step .wizard-band-inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--sg-space-7);
+  }
+  .hero-step .wizard-band-head {
+    align-items: flex-start;
+    text-align: left;
+  }
+  /* A small sheet floating on the navy: the mark on a navy band, a paper
+     title block set like the real cover (bold sans), two grey text lines. */
+  .hero-step .hero-cover {
+    display: flex;
+    flex-direction: column;
+    width: 16rem;
+    text-align: left;
+    background: var(--sg-paper);
+    border: 1px solid var(--sg-border);
+    border-radius: var(--sg-radius-sheet);
+    box-shadow: var(--sg-shadow-sheet);
+    overflow: hidden;
+  }
+  .hero-step .hero-cover-band {
+    height: 4.5rem;
+    padding: var(--sg-space-3);
+    background: var(--sg-hero-shield);
+  }
+  .hero-step .hero-cover-plate {
+    display: inline-flex;
+    padding: 0.2rem 0.35rem;
+    background: var(--sg-cover-plate);
+    border-radius: 3px;
+  }
+  .hero-step .hero-cover-logo {
+    display: block;
+    height: 1.375rem;
+    width: auto;
+  }
+  .hero-step .hero-cover-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin: -1.25rem var(--sg-space-3) 0;
+    padding: var(--sg-space-3);
+    color: var(--sg-muted);
+    background: var(--sg-paper);
+    border: 1px solid var(--sg-border);
+    border-radius: var(--sg-radius-sm);
+  }
+  /* Set like the real styled cover's title: bold sans, never the display serif. */
+  .hero-step .hero-cover-title {
+    font-size: var(--sg-text-lg);
+    font-weight: 700;
+    line-height: var(--sg-leading-tight);
+    color: var(--sg-muted);
+  }
+  .hero-step .hero-cover-name {
+    font-size: var(--sg-text-xs);
+  }
+  .hero-step .hero-cover-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: var(--sg-space-4) var(--sg-space-3);
+  }
+  .hero-step .hero-cover-line {
+    display: block;
+    height: 0.375rem;
+    border-radius: var(--sg-radius-pill);
+    background: var(--sg-rule-track);
+  }
+  .hero-step .hero-cover-line.is-short {
+    width: 62%;
+  }
+}

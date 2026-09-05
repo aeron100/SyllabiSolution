@@ -1,0 +1,165 @@
+/* Step 3 — Arrange and style. Layout only; every color and size is a token from src/styles. */
+
+.arrange-cover,
+.arrange-toggles {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.arrange-course {
+  margin: 0 0 var(--sg-space-3);
+}
+.arrange-fields {
+  display: grid;
+  gap: var(--sg-space-3);
+  margin-bottom: var(--sg-space-2);
+}
+@media (min-width: 576px) {
+  .arrange-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.arrange-field {
+  min-width: 0;
+}
+.arrange-list-help {
+  margin-bottom: var(--sg-space-3);
+}
+/* The Original card leads the gallery on its own row. */
+.arrange-look-original {
+  grid-column: 1 / -1;
+}
+
+/* ---- The step grid ---------------------------------------------------------
+ * One grid, five named areas. The DOM order is the narrow-screen order:
+ * Look, Preview, Layout, Your syllabus, Cover — so keyboard and screen-reader
+ * order match what is on screen and the preview follows the look picker.
+ * No inner scroll containers: a long gallery scrolls with the page.
+ */
+.wizard-columns.arrange-columns {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'look'
+    'preview'
+    'toggles'
+    'list'
+    'cover';
+}
+.arrange-area-look {
+  grid-area: look;
+}
+.arrange-area-preview {
+  grid-area: preview;
+}
+.arrange-area-toggles {
+  grid-area: toggles;
+}
+.arrange-area-list {
+  grid-area: list;
+}
+.arrange-area-cover {
+  grid-area: cover;
+}
+
+/* ---- The preview pane -------------------------------------------------------
+ * Always on screen (no disclosure). The sheet keeps the last document while
+ * the next one is assembled; the chip sits over the sheet's corner meanwhile.
+ */
+.arrange-preview-hint {
+  margin-bottom: var(--sg-space-3);
+}
+.arrange-preview-desk {
+  padding: var(--sg-space-3);
+}
+.arrange-preview-sheet {
+  position: relative; /* anchors the status chip */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 55vh;
+}
+/* The part replaced on each update (it carries aria-busy; the status chip is its sibling). Fills the sheet. */
+.arrange-preview-doc {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.arrange-preview-frame {
+  flex: 1 1 auto;
+  height: 55vh;
+  min-height: 18rem;
+}
+.arrange-preview-empty {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0; /* the sheet already draws the paper edge */
+}
+/* A persistent polite live region (LiveRegion pattern) that is visible only while it has a chip in it. */
+.arrange-preview-status {
+  position: absolute;
+  top: var(--sg-space-2);
+  right: var(--sg-space-2);
+  pointer-events: none;
+}
+/* The chip is fully opaque (DESIGN.md §10 "Restraint": nothing translucent over content). */
+.arrange-preview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sg-space-2);
+  padding: var(--sg-space-1) var(--sg-space-3);
+  min-height: 2rem;
+  font-size: var(--sg-text-sm);
+  font-weight: 600;
+  color: var(--sg-ink);
+  background: var(--sg-tint);
+  border: 1px solid var(--sg-border-strong);
+  border-radius: var(--sg-radius-sm);
+  box-shadow: var(--sg-shadow-tile);
+}
+
+/* ---- Wide screens ----------------------------------------------------------- */
+
+@media (min-width: 992px) {
+  /* Left ≈ 42 %: Look, Layout, Your syllabus, Cover. Right ≈ 58 %: the preview. */
+  .wizard-columns.arrange-columns {
+    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+    grid-template-areas:
+      'look preview'
+      'toggles preview'
+      'list preview'
+      'cover preview';
+  }
+  /*
+   * The preview sticks while the left column scrolls. It occupies its OWN grid
+   * column (the `preview` area spans every row of the right track) and
+   * `align-self: start` sizes it to its content, so it can never overlap the
+   * left column or any focused control in it — sticky positioning moves an
+   * element only within its own grid area (WCAG 2.2 2.4.11 Focus not obscured).
+   */
+  .arrange-area-preview {
+    position: sticky;
+    top: var(--sg-space-4);
+    align-self: start;
+  }
+  .arrange-preview-sheet {
+    min-height: 70vh;
+  }
+  .arrange-preview-frame {
+    height: 70vh;
+    min-height: 24rem;
+  }
+}
+
+/* Group labels inside the look gallery: full-width rows between the tiles. */
+.arrange-look-group {
+  grid-column: 1 / -1;
+  margin: var(--sg-space-3, 0.75rem) 0 0;
+  color: var(--sg-muted);
+  font-size: var(--sg-text-xs, 0.75rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
