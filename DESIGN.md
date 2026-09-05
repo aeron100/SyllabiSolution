@@ -2,7 +2,7 @@
 
 Status: Phase 1 implemented. Run `npm run dev` and open the app; tests via
 `npm test`; production build via `npm run build`, which writes one
-self-contained file as `dist/cc_ie_syllabus_generator.html` (to email or share)
+self-contained file as `dist/SyllabiSolution.html` (to email or share)
 and the same file as `dist/index.html` (for static hosting).
 In development, `?load=/__dev/<file>.imscc` loads an export from the project
 root without uploading.
