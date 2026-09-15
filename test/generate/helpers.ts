@@ -98,7 +98,7 @@ export function makeDoc(
   sections: ProcessedPage[] = threePages(),
 ): SyllabusDoc {
   return {
-    options: { presentation, palette: DEFAULT_PALETTE, showCover: true, showToc: true, pageBreaks: false, language: 'en', ...over },
+    options: { presentation, palette: DEFAULT_PALETTE, showCover: true, showToc: true, pageBreaks: false, keepPageNav: false, language: 'en', ...over },
     cover: {
       courseTitle: 'Fundamentals of Data Structures',
       courseCode: 'ICS 123',

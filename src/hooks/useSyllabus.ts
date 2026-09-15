@@ -64,7 +64,7 @@ export type Phase = 'empty' | 'reading' | 'ready' | 'generating';
 
 /** Institution named on the cover when the logo is included (DESIGN.md §10 "Branding"). */
 export const INSTITUTION = 'Coastline College';
-/** Debounce for the step-3 live preview after a content change (order, cover, language, logo). */
+/** Debounce for the step-3 live preview after a content change (order, cover, language, on-page navigation, logo). */
 export const LIVE_PREVIEW_DELAY_MS = 300;
 /**
  * Debounce after a look change (presentation, palette, cover/TOC/page-break
@@ -111,6 +111,8 @@ export interface SyllabusState {
   showCover: boolean;
   showToc: boolean;
   pageBreaks: boolean;
+  /** Keep each page's own navigation links (contents lists, jump links, "Back to top"). Changes the processed text, so it is part of the page cache key. */
+  keepPageNav: boolean;
   /** BCP-47 primary tag for the document. */
   language: string;
   cover: CoverFields;
@@ -166,6 +168,7 @@ export const initialState: SyllabusState = {
   showCover: true,
   showToc: true,
   pageBreaks: true,
+  keepPageNav: false,
   language: 'en',
   cover: initialCover,
   includeLogo: true,
@@ -256,8 +259,8 @@ function reducer(s: SyllabusState, a: Action): SyllabusState {
       return { ...s, preview: null, previewLoading: false, previewError: a.error };
     case 'SET_OPTIONS': {
       const p = a.patch;
-      // Language changes the processed text (it is part of the page cache key); everything else is a look.
-      const reason: LiveReason = p.language !== undefined ? 'content' : 'look';
+      // Language and on-page navigation change the processed text (both are in the page cache key); everything else is a look.
+      const reason: LiveReason = p.language !== undefined || p.keepPageNav !== undefined ? 'content' : 'look';
       return {
         ...s,
         presentation: p.presentation ?? s.presentation,
@@ -265,6 +268,7 @@ function reducer(s: SyllabusState, a: Action): SyllabusState {
         showCover: p.showCover ?? s.showCover,
         showToc: p.showToc ?? s.showToc,
         pageBreaks: p.pageBreaks ?? s.pageBreaks,
+        keepPageNav: p.keepPageNav ?? s.keepPageNav,
         language: p.language !== undefined ? primaryLanguage(p.language) : s.language,
         liveReason: reason,
         liveFailedKey: null,
@@ -358,6 +362,7 @@ export function docKey(s: SyllabusState): string {
     s.showCover,
     s.showToc,
     s.pageBreaks,
+    s.keepPageNav,
     s.language,
     s.cover,
     s.includeLogo,
@@ -371,6 +376,7 @@ function docOptions(s: SyllabusState): DocOptions {
     showCover: s.showCover,
     showToc: s.showToc,
     pageBreaks: s.pageBreaks,
+    keepPageNav: s.keepPageNav,
     language: s.language || 'en',
   };
 }
@@ -613,27 +619,31 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
 
   // -- processing -----------------------------------------------------------
 
-  const getProcessed = useCallback(async (id: string, selected: string[], language: string): Promise<ProcessedPage> => {
-    const cart = stateRef.current.cart;
-    const resolvers = resolversRef.current;
-    if (!cart || !resolvers) throw new Error('No course export is loaded.');
-    const cacheKey = `${id}::${selectionKey(selected)}::${language}`;
-    const hit = cacheRef.current.get(cacheKey);
-    if (hit) return hit;
-    const resource = cart.resources.get(id);
-    if (!resource) throw new Error(`Unknown page: ${id}`);
-    const content = await extractContent(cart, id);
-    const page = await processContent(content, {
-      sectionId: `sec-${id}`,
-      sectionTitle: resource.title,
-      selectedSections: new Map(selected.map((s) => [s, `sec-${s}`])),
-      resolveAsset: resolvers.asset,
-      resolveWikiRef: resolvers.wiki,
-      language,
-    });
-    cacheRef.current.set(cacheKey, page);
-    return page;
-  }, []);
+  const getProcessed = useCallback(
+    async (id: string, selected: string[], language: string, keepPageNav: boolean): Promise<ProcessedPage> => {
+      const cart = stateRef.current.cart;
+      const resolvers = resolversRef.current;
+      if (!cart || !resolvers) throw new Error('No course export is loaded.');
+      const cacheKey = `${id}::${selectionKey(selected)}::${language}::${keepPageNav ? 'nav' : 'no-nav'}`;
+      const hit = cacheRef.current.get(cacheKey);
+      if (hit) return hit;
+      const resource = cart.resources.get(id);
+      if (!resource) throw new Error(`Unknown page: ${id}`);
+      const content = await extractContent(cart, id);
+      const page = await processContent(content, {
+        sectionId: `sec-${id}`,
+        sectionTitle: resource.title,
+        selectedSections: new Map(selected.map((s) => [s, `sec-${s}`])),
+        resolveAsset: resolvers.asset,
+        resolveWikiRef: resolvers.wiki,
+        language,
+        keepPageNav,
+      });
+      cacheRef.current.set(cacheKey, page);
+      return page;
+    },
+    [],
+  );
 
   // Step-2 preview: lazily process the focused item; debounced; stale results ignored.
   useEffect(() => {
@@ -644,7 +654,8 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
       void (async () => {
         dispatch({ type: 'PREVIEW_START' });
         try {
-          const page = await getProcessed(id, stateRef.current.selected, stateRef.current.language || 'en');
+          const cur = stateRef.current;
+          const page = await getProcessed(id, cur.selected, cur.language || 'en', cur.keepPageNav);
           if (req !== previewReq.current) return;
           dispatch({ type: 'PREVIEW_OK', page });
         } catch (e) {
@@ -659,7 +670,7 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
   // Step-3 live preview: every selected page (cached) assembled into the real
   // document, 300 ms after the last content edit or 50 ms after a look change
   // (a look change touches only assembly: getProcessed hits cacheRef for every
-  // page, since its key is id + selection + language). Only while the step is
+  // page, since its key is id + selection + language + on-page navigation). Only while the step is
   // on screen. The previous document stays in `livePreview` until LIVE_OK, so
   // the pane never blanks between updates.
   //
@@ -697,7 +708,7 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
           const sections: ProcessedPage[] = [];
           const notices: Record<string, NoticeCode[]> = {};
           for (const id of ids) {
-            const page = await getProcessed(id, ids, language);
+            const page = await getProcessed(id, ids, language, s.keepPageNav);
             if (req !== liveReq.current) return;
             sections.push(page);
             notices[id] = page.notices;
@@ -779,7 +790,7 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
       const sections: ProcessedPage[] = [];
       const notices: Record<string, NoticeCode[]> = {};
       for (let i = 0; i < ids.length; i++) {
-        const page = await getProcessed(ids[i], ids, language);
+        const page = await getProcessed(ids[i], ids, language, s.keepPageNav);
         sections.push(page);
         notices[ids[i]] = page.notices;
         dispatch({ type: 'GEN_PROGRESS', done: i + 1 });
@@ -844,6 +855,7 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
     state.showCover,
     state.showToc,
     state.pageBreaks,
+    state.keepPageNav,
     state.language,
   ]);
 

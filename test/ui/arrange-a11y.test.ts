@@ -76,7 +76,7 @@ const COVER: CoverInfo = {
   email: 'ada@coastline.edu',
   officeHours: 'Tue 2–4 pm',
 };
-const OPTIONS: DocOptions = { presentation: 'styled', palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: false, language: 'en' };
+const OPTIONS: DocOptions = { presentation: 'styled', palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: false, keepPageNav: false, language: 'en' };
 const SRCDOC = '<!doctype html><html lang="en"><head><title>Syllabus</title></head><body><h1>Syllabus</h1><p>preview</p></body></html>';
 
 function makeProps(over: Partial<ArrangeStepProps> = {}): ArrangeStepProps {

@@ -56,7 +56,7 @@ function makeCart(): Cartridge {
 }
 
 const COVER: CoverInfo = { courseTitle: 'Fundamentals of Data Structures', courseCode: 'ICS 123', term: 'Fall 2026', instructor: 'Ada' };
-const OPTIONS: DocOptions = { presentation: 'styled', palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: false, language: 'en' };
+const OPTIONS: DocOptions = { presentation: 'styled', palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: false, keepPageNav: false, language: 'en' };
 const SRCDOC = '<!doctype html><html><body><p>preview</p></body></html>';
 
 function makeProps(over: Partial<ArrangeStepProps> = {}): ArrangeStepProps {
@@ -187,9 +187,9 @@ describe('ArrangeStep (static)', () => {
     expect(count(html, /aria-checked="true"/g)).toBe(1);
   });
 
-  it('renders the four layout switches with their state; the logo switch follows Cover page and shows the mark', () => {
+  it('renders the five layout switches with their state; the logo switch follows Cover page and shows the mark', () => {
     const html = renderToStaticMarkup(<ArrangeStep {...makeProps()} />);
-    expect(count(html, /role="switch"/g)).toBe(4);
+    expect(count(html, /role="switch"/g)).toBe(5);
     expect(html).toMatch(/id="arrange-cover-page" type="checkbox" role="switch"[^>]*checked=""/);
     expect(html).toMatch(/id="arrange-logo" type="checkbox" role="switch"[^>]*checked=""/);
     expect(html).toContain('>Coastline College logo<');
@@ -197,15 +197,17 @@ describe('ArrangeStep (static)', () => {
     // Inside the Layout fieldset, right after Cover page, with the inlined mark (decorative) beside it.
     const doc = new DOMParser().parseFromString(html, 'text/html');
     const ids = Array.from(doc.querySelectorAll('.arrange-toggles [role="switch"]')).map((el) => el.id);
-    expect(ids).toEqual(['arrange-cover-page', 'arrange-logo', 'arrange-toc', 'arrange-page-breaks']);
+    expect(ids).toEqual(['arrange-cover-page', 'arrange-logo', 'arrange-toc', 'arrange-page-nav', 'arrange-page-breaks']);
     const thumb = doc.querySelector('#arrange-logo ~ .switch-aside img') as HTMLImageElement;
     expect(thumb.getAttribute('alt')).toBe('');
     expect(thumb.getAttribute('src')).toMatch(/^data:image\/svg\+xml;base64,/);
     expect(thumb.parentElement?.className).toBe('sg-logo-plate arrange-logo-thumb');
     expect(html).toMatch(/id="arrange-toc" type="checkbox" role="switch"[^>]*checked=""/);
+    expect(html).toMatch(/id="arrange-page-nav" type="checkbox" role="switch"(?![^>]*checked="")/);
     expect(html).toMatch(/id="arrange-page-breaks" type="checkbox" role="switch"(?![^>]*checked="")/);
     expect(html).toContain('Cover page');
     expect(html).toContain('Table of contents');
+    expect(html).toContain('On-page navigation');
     expect(html).toContain('Page break between sections');
   });
 
@@ -497,6 +499,8 @@ describe('ArrangeStep (behaviour)', () => {
 
     click($(m.host, '#arrange-toc'));
     expect(props.onOptions).toHaveBeenLastCalledWith({ showToc: false });
+    click($(m.host, '#arrange-page-nav'));
+    expect(props.onOptions).toHaveBeenLastCalledWith({ keepPageNav: true });
     click($(m.host, '#arrange-page-breaks'));
     expect(props.onOptions).toHaveBeenLastCalledWith({ pageBreaks: true });
     click($(m.host, '#arrange-cover-page'));

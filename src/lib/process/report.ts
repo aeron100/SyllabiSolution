@@ -54,7 +54,16 @@ const MESSAGES: Record<string, { severity: ReportSeverity; message: Message }> =
   },
   'anchor-link-rewritten': {
     severity: 'fixed',
-    message: (n) => `${n} in-page ${one(n, 'link was', 'links were')} repointed to the new heading anchors.`,
+    message: (n) => `${n} in-page ${one(n, 'link was', 'links were')} repointed to the new heading or section anchors.`,
+  },
+  'page-nav-removed': {
+    severity: 'fixed',
+    message: (n) =>
+      `${n} on-page navigation ${one(n, 'link', 'links')} (a contents list, jump links, or "Back to top") ${were(n)} removed; the document has its own table of contents.`,
+  },
+  'page-link-unwrapped': {
+    severity: 'fixed',
+    message: (n) => `${n} ${one(n, 'link', 'links')} to another part of the same page ${were(n)} turned into plain text.`,
   },
   'internal-link-anchored': {
     severity: 'fixed',

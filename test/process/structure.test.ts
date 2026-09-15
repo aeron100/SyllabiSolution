@@ -253,3 +253,91 @@ describe('email links', () => {
     expect(entry(p, 'link-email-mismatch')).toBeUndefined();
   });
 });
+
+describe('on-page navigation (§6d)', () => {
+  // A Canvas page with its own contents list, a reference link, and a "Back to top" after each part.
+  const PAGE =
+    '<article id="was-top"><div>' +
+    '<details><summary><strong>On this page</strong></summary><nav aria-label="Contents of this page"><ul>' +
+    '<li><a href="#1-intro"><mark>1</mark>Intro</a></li><li><a href="#2-grading"><mark>2</mark>Grading</a></li></ul></nav></details>' +
+    '<h2 id="1-intro">Intro</h2><p>Welcome. See <a href="#2-grading">grading</a> below.</p>' +
+    '<p><a href="#was-top">Back to top<span aria-hidden="true"> ↑</span></a></p>' +
+    '<h2 id="2-grading">Grading</h2><p>Points.</p>' +
+    '</div><footer><hr><a href="#was-top">Back to top<span aria-hidden="true"> ↑</span></a></footer></article>';
+
+  it('removes the contents list, every Back to top link, and same-page reference links by default; the rule stays', async () => {
+    const p = await run(PAGE);
+    expect(p.neutral).toBe(
+      '<h3 id="sec-1-h1">Intro</h3><p>Welcome. See grading below.</p><h3 id="sec-1-h2">Grading</h3><p>Points.</p><hr>',
+    );
+    expect(p.original).not.toContain('On this page');
+    expect(p.original).toContain('<hr>');
+    expect(entry(p, 'page-nav-removed')?.count).toBe(4);
+    expect(entry(p, 'page-link-unwrapped')?.count).toBe(1);
+    expect(entry(p, 'anchor-link-unwrapped')).toBeUndefined();
+    expect(entry(p, 'fake-heading-promoted')).toBeUndefined();
+  });
+
+  it('keeps and repoints all of it when on-page navigation is kept; Back to top goes to the section start', async () => {
+    const p = await run(PAGE, { keepPageNav: true });
+    expect(p.neutral).toContain('On this page');
+    expect(p.neutral).toContain('<li><a href="#sec-1-h2"><mark>1</mark>Intro</a></li>');
+    expect(p.neutral).toContain('<li><a href="#sec-1-h3"><mark>2</mark>Grading</a></li>');
+    expect(p.neutral).toContain('See <a href="#sec-1-h3">grading</a> below.');
+    expect(p.neutral.match(/<a href="#sec-1">Back to top/g)).toHaveLength(2);
+    expect(entry(p, 'anchor-link-rewritten')?.count).toBe(5);
+    expect(entry(p, 'anchor-link-unwrapped')).toBeUndefined();
+    expect(entry(p, 'page-nav-removed')).toBeUndefined();
+    expect(entry(p, 'page-link-unwrapped')).toBeUndefined();
+  });
+
+  it('removes a plain "Contents" label with its (nested) jump list, but keeps a list that says more than its link', async () => {
+    const p = await run(
+      '<p><strong>Contents</strong></p><ul><li><a href="#a">A</a></li><li><a href="#b">B</a><ul><li><a href="#b1">B1</a></li></ul></li></ul>' +
+        '<h2 id="a">A</h2><ul><li><a href="#b">B</a> is next</li></ul><h2 id="b">B</h2><h3 id="b1">B1</h3><p>x</p>',
+    );
+    expect(p.neutral).toBe(
+      '<h3 id="sec-1-h1">A</h3><ul><li>B is next</li></ul><h3 id="sec-1-h2">B</h3><h4 id="sec-1-h3">B1</h4><p>x</p>',
+    );
+    expect(entry(p, 'page-nav-removed')?.count).toBe(3);
+    expect(entry(p, 'page-link-unwrapped')?.count).toBe(1);
+  });
+
+  it('leaves navigation to other places alone: web links stay, and only the same-page link becomes text', async () => {
+    const p = await run(
+      '<nav><ul><li><a href="https://example.edu/handbook">Handbook</a></li><li><a href="#local">Local</a></li></ul></nav><h2 id="local">Local</h2><p>x</p>',
+    );
+    expect(p.neutral).toBe(
+      '<ul><li><a href="https://example.edu/handbook">Handbook</a></li><li>Local</li></ul><h3 id="sec-1-h1">Local</h3><p>x</p>',
+    );
+    expect(entry(p, 'page-nav-removed')).toBeUndefined();
+    expect(entry(p, 'page-link-unwrapped')?.count).toBe(1);
+  });
+
+  it('keeps a contents list that points to other selected pages (cross-section anchors are not on-page navigation)', async () => {
+    const p = await run('<nav><ul><li><a href="$WIKI_REFERENCE$/pages/grading">Grading</a></li></ul></nav><p>x</p>', {
+      selectedSections: new Map([['grading', 'sec-grading']]),
+    });
+    expect(p.neutral).toBe('<ul><li><a href="#sec-grading">Grading</a></li></ul><p>x</p>');
+    expect(entry(p, 'page-nav-removed')).toBeUndefined();
+    expect(entry(p, 'page-link-unwrapped')).toBeUndefined();
+  });
+
+  it('recognizes Back to top by wording, arrow, or wrapper target, however many times it appears', async () => {
+    const html =
+      '<div id="top"><h2 id="a">A</h2><p>x <a href="#top">Top of page</a></p><h2 id="b">B</h2><p>y <a href="#a">↑</a></p>' +
+      '<p><a href="#nowhere">Return to the top</a></p></div>';
+    const p = await run(html);
+    expect(p.neutral).toContain('<h3 id="sec-1-h1">A</h3>');
+    expect(p.neutral).toContain('<h3 id="sec-1-h2">B</h3>');
+    expect(p.neutral).not.toMatch(/top|↑/i);
+    expect(entry(p, 'page-nav-removed')?.count).toBe(3);
+
+    const q = await run(html, { keepPageNav: true });
+    expect(q.neutral).toContain('<a href="#sec-1">Top of page</a>');
+    expect(q.neutral).toContain('<a href="#sec-1-h1">↑</a>');
+    expect(q.neutral).toContain('<a href="#sec-1">Return to the top</a>');
+    expect(entry(q, 'anchor-link-rewritten')?.count).toBe(3);
+    expect(entry(q, 'anchor-link-unwrapped')).toBeUndefined();
+  });
+});

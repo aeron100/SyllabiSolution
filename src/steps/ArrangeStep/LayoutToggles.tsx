@@ -3,7 +3,7 @@ import { Switch } from '../../components/ui';
 import { LOGO_DATA_URI } from '../../ui/assets';
 
 export interface LayoutTogglesProps {
-  options: Pick<DocOptions, 'showCover' | 'showToc' | 'pageBreaks'>;
+  options: Pick<DocOptions, 'showCover' | 'showToc' | 'keepPageNav' | 'pageBreaks'>;
   onOptions: (patch: Partial<DocOptions>) => void;
   /** Put the Coastline College mark on the cover. Kept outside DocOptions (see useSyllabus). */
   includeLogo: boolean;
@@ -15,7 +15,7 @@ export const LOGO_HINT = 'On the cover, above the course title.';
 export const LOGO_NO_COVER_HINT = 'Turn on the cover page to show it.';
 
 /**
- * The four layout toggles; they apply to both looks (DESIGN.md §8). The logo
+ * The five layout toggles; they apply to both looks (DESIGN.md §8). The logo
  * switch sits right under "Cover page", the toggle it depends on, with the
  * mark shown small beside it so the choice is visible without opening the
  * preview. The legend holds an h3 (HTML allows heading content in a legend),
@@ -54,6 +54,13 @@ export function LayoutToggles({ options, onOptions, includeLogo, onIncludeLogo }
         hint="A list of the sections, after the cover."
         checked={options.showToc}
         onChange={(v) => onOptions({ showToc: v })}
+      />
+      <Switch
+        id="arrange-page-nav"
+        label="On-page navigation"
+        hint="Keep each page's own contents lists, jump links, and Back to top links."
+        checked={options.keepPageNav}
+        onChange={(v) => onOptions({ keepPageNav: v })}
       />
       <Switch
         id="arrange-page-breaks"

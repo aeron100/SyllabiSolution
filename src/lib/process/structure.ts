@@ -5,7 +5,8 @@
 import type { ProcessOptions } from '../types';
 import {
   blockify, cleanText, elements, hasSignificantContent, INLINE_FORMAT_TAGS, isBlank, isElement, isEmptyBlock,
-  isEntirelyBold, isLanguageTag, isText, pxOf, rename, reverseElements, stripLeadingChars, styleOf, textOf, unwrap,
+  isEntirelyBold, isHeading, isLanguageTag, isText, pxOf, rename, reverseElements, stripLeadingChars, styleOf, textOf,
+  unwrap,
 } from './dom';
 import { assignHeadingIds, normalizeHeadings, promoteFakeHeadings } from './headings';
 import { imageDimensions } from './assets';
@@ -14,6 +15,9 @@ import type { Reporter } from './report';
 const HEADINGS = 'h1, h2, h3, h4, h5, h6';
 
 export function fixStructure(root: Element, opts: ProcessOptions, rep: Reporter): void {
+  // Ids on wrappers of the whole page are "Back to top" targets; they vanish with the landmarks below.
+  const topIds = pageWrapperIds(root);
+  if (!opts.keepPageNav) removePageNavigation(root, topIds, rep);
   unwrapLandmarks(root);
   removeEmptyInline(root);
   removeEmptyBlocks(root, rep);
@@ -29,10 +33,130 @@ export function fixStructure(root: Element, opts: ProcessOptions, rep: Reporter)
   promoteFakeHeadings(root, rep);
   normalizeHeadings(root, opts.sectionTitle, rep);
   const idMap = assignHeadingIds(root, opts.sectionId);
-  fixLinks(root, idMap, rep);
+  for (const id of topIds) if (!idMap.has(id)) idMap.set(id, opts.sectionId);
+  fixLinks(root, idMap, opts.sectionId, rep);
   fixLang(root, rep);
   removeEmptyInline(root);
   removeEmptyBlocks(root, rep);
+}
+
+// ---------------------------------------------------------------------------
+// On-page navigation
+// ---------------------------------------------------------------------------
+
+/** A link to another part of the same page (not a cross-section anchor made by the link pass). */
+function isPageLink(a: Element): boolean {
+  const href = a.getAttribute('href');
+  return href !== null && href.trim().startsWith('#') && !a.hasAttribute('data-sg-anchor');
+}
+
+const TOP_TEXT_RE = /^(?:(?:back|return|go|jump|scroll)(?: up)?(?: to)?(?: the)? )?top(?: of(?: the)? page)?$/;
+const UP_ARROW_RE = /[↑⬆⇧▲△^]/;
+
+/** "Back to top", "Top of page", "↑": a link back to the start of the page it sits on. */
+function isBackToTop(a: Element): boolean {
+  const raw = cleanText(a.textContent);
+  const words = raw.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  return words ? TOP_TEXT_RE.test(words) : UP_ARROW_RE.test(raw);
+}
+
+const NAV_LABEL_RE =
+  /^(?:on this page|in this (?:page|section|module|document)|(?:page |table of )?contents|jump to(?: a section)?|quick links|(?:page )?navigation|sections)[:.]?$/i;
+
+/** A heading, paragraph, or summary that only names the navigation list after it. */
+function isNavLabel(el: Element): boolean {
+  if (!isHeading(el) && el.localName !== 'p' && el.localName !== 'summary') return false;
+  return NAV_LABEL_RE.test(textOf(el));
+}
+
+/** Text of a list item outside any list nested in it. */
+function textOutsideLists(li: Element): string {
+  let out = '';
+  const walk = (n: Node): void => {
+    if (isText(n)) out += n.data;
+    else if (isElement(n) && n.localName !== 'ul' && n.localName !== 'ol') for (const c of Array.from(n.childNodes)) walk(c);
+  };
+  walk(li);
+  return cleanText(out);
+}
+
+/** A list whose every item is one same-page link and nothing else; nested lists must be the same. */
+function isJumpList(list: Element): boolean {
+  const items = Array.from(list.children).filter((c) => c.localName === 'li');
+  if (!items.length) return false;
+  return items.every((li) => {
+    const links = elements(li, 'a[href]').filter((a) => a.closest('li') === li);
+    if (links.length !== 1 || !isPageLink(links[0])) return false;
+    if (textOutsideLists(li) !== textOf(links[0])) return false;
+    return elements(li, 'ul, ol')
+      .filter((l) => l.parentElement?.closest('li') === li)
+      .every(isJumpList);
+  });
+}
+
+function hasContentBesidesSummary(details: Element): boolean {
+  return Array.from(details.childNodes).some((n) => {
+    if (isText(n)) return !isBlank(n.data);
+    return isElement(n) && n.localName !== 'summary' && (textOf(n) !== '' || hasSignificantContent(n));
+  });
+}
+
+/** Remove a navigation block, the label before it, and a <details> left with nothing but its summary. */
+function dropNavBlock(block: Element): void {
+  const parent = block.parentElement;
+  const label = previousElement(block);
+  block.remove();
+  if (label && isNavLabel(label)) label.remove();
+  if (parent && parent.localName === 'details' && !hasContentBesidesSummary(parent)) parent.remove();
+}
+
+/**
+ * Navigation that belongs to the page in the LMS, not to the assembled
+ * document: <nav> blocks and lists made only of same-page links (with their
+ * "On this page" label), "Back to top" links, and other links to parts of
+ * the same page, which become plain text. The document has its own table of
+ * contents. A horizontal rule the author put beside a removed link stays.
+ */
+function removePageNavigation(root: Element, topIds: ReadonlySet<string>, rep: Reporter): void {
+  let removed = 0;
+  let unwrapped = 0;
+  for (const nav of reverseElements(root, 'nav')) {
+    if (!root.contains(nav)) continue;
+    const links = elements(nav, 'a[href]');
+    if (!links.length || !links.every(isPageLink)) continue;
+    removed += links.length;
+    dropNavBlock(nav);
+  }
+  for (const list of reverseElements(root, 'ul, ol')) {
+    if (!root.contains(list) || !isJumpList(list)) continue;
+    removed += elements(list, 'a[href]').length;
+    dropNavBlock(list);
+  }
+  for (const a of elements(root, 'a[href]')) {
+    if (!root.contains(a) || !isPageLink(a)) continue;
+    const target = (a.getAttribute('href') ?? '').trim().slice(1);
+    if (isBackToTop(a) || (target !== '' && topIds.has(target))) {
+      a.remove();
+      removed++;
+    } else {
+      unwrap(a);
+      unwrapped++;
+    }
+  }
+  if (removed) rep.add('page-nav-removed', removed);
+  if (unwrapped) rep.add('page-link-unwrapped', unwrapped);
+}
+
+/** Ids on elements that wrap the whole page (an <article id="top">): where "Back to top" points. */
+function pageWrapperIds(root: Element): Set<string> {
+  const ids = new Set<string>();
+  const all = textOf(root);
+  if (!all) return ids;
+  for (const el of elements(root, '[id]')) {
+    const id = el.getAttribute('id') ?? '';
+    if (id && !isHeading(el) && textOf(el) === all) ids.add(id);
+  }
+  return ids;
 }
 
 // ---------------------------------------------------------------------------
@@ -364,7 +488,7 @@ const VAGUE = new Set([
   'continue', 'next', 'url',
 ]);
 
-function fixLinks(root: Element, idMap: Map<string, string>, rep: Reporter): void {
+function fixLinks(root: Element, idMap: Map<string, string>, sectionId: string, rep: Reporter): void {
   for (const a of elements(root, 'a')) {
     const href = a.getAttribute('href');
     if (href === null || isBlank(href)) {
@@ -377,7 +501,8 @@ function fixLinks(root: Element, idMap: Map<string, string>, rep: Reporter): voi
       continue;
     }
     if (href.startsWith('#')) {
-      const target = idMap.get(href.slice(1));
+      // "Back to top" whose target is gone still means the start of this page: the section's own anchor.
+      const target = idMap.get(href.slice(1)) ?? (isBackToTop(a) ? sectionId : undefined);
       if (target) {
         a.setAttribute('href', '#' + target);
         rep.add('anchor-link-rewritten');

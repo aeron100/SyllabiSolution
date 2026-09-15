@@ -276,6 +276,13 @@ get nothing promoted.
   no data) → unwrapped.
 - Empty links and links with no `href` → unwrapped. Adjacent duplicate links
   to the same target → merged.
+- On-page navigation — `<nav>` blocks and lists made only of same-page
+  links, with their "On this page" label; "Back to top" links; and other
+  links to parts of the same page — is removed and reported, page by page,
+  unless the "On-page navigation" toggle keeps it (the document has its own
+  table of contents). Kept links are repointed to the new heading anchors,
+  and "Back to top" goes to the start of its section. A horizontal rule the
+  author put beside a removed link stays.
 - Vague link text ("click here", "here", "this page", "link", bare URLs) →
   kept but flagged in report.
 - Email links whose visible text is one address but whose target is
@@ -457,7 +464,10 @@ ship.
 
 Layout toggles are separate from style and apply to both options: cover
 page, the Coastline College logo on the cover (shown small beside its
-switch), table of contents, page break between sections. Print keeps
+switch), table of contents, on-page navigation (off by default: each
+page's own contents lists, jump links, and "Back to top" links are removed
+and reported; on keeps them, repointed), page break between sections.
+Print keeps
 `primary` on headings since it passes on white, and collapses tints and
 surfaces to paper to save ink.
 
@@ -604,7 +614,7 @@ Two columns on wide screens (≥ 992 px). Left, about 42 %: the look picker
 as a gallery first — Original as a card showing the user's own formatting,
 then the palette swatches as cards, each a small stack of its five colors
 with the name beneath, the chosen one marked by a 3 px navy border and a
-check — then the four layout toggles, then "Your syllabus", the ordered
+check — then the five layout toggles, then "Your syllabus", the ordered
 list of selected items with Move up, Move down, and Remove and Alt+Arrow
 reordering, and last the cover form (instructor, email, office hours,
 meeting times, language). Right, about 58 %: a permanent "Preview" pane —
@@ -615,7 +625,7 @@ never cover a focused control. On narrow screens everything stacks in one
 column in the order Look, Preview (always visible, at least 55 vh, never
 behind a disclosure), Layout, Your syllabus, Cover, so a palette tap shows
 its effect directly beneath the gallery. A look change re-assembles the
-preview from cached pages within 50 ms; an order, cover, or language edit
+preview from cached pages within 50 ms; an order, cover, language, or on-page navigation edit
 waits 300 ms; meanwhile the previous document stays on the sheet, marked
 busy, and its scroll position is restored when the new one loads. A small
 "Updating…" chip appears (and is announced) only once the wait passes about
@@ -941,6 +951,7 @@ limits of the heuristics are named rather than implied.
 | Output size | Downscale images above 1600 px wide via `<canvas>`; show size before download | 1 |
 | Preview safety | Preview and generated document rendered in a sandboxed `<iframe>` | 1 |
 | Page break per section | Toggle; default on | 1 |
+| On-page navigation inside a page ("On this page" lists, jump links, "Back to top") | Removed and reported by default, page by page; the "On-page navigation" toggle keeps it, repointed to the new anchors | 1 |
 | Same resource in several modules | Shown in each place, selectable once | 1 |
 | Duplicate titles | Unique anchors; TOC entries disambiguated with module name | 1 |
 | Document language | From course settings if present, else browser language; picker on cover form | 1 |

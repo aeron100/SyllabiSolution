@@ -157,14 +157,16 @@ describe('assets and links (§6c)', () => {
     expect(codes(p, 'todo')).toContain('equation-image');
   });
 
-  it('repoints in-page anchors to new heading ids and unwraps dead ones', async () => {
+  it('with on-page navigation kept, repoints in-page anchors to new heading ids and unwraps dead ones', async () => {
     const p = await run(
       '<p><a href="#grading">Grading</a> <a href="#nowhere">Nowhere</a> <a href="#">Top</a></p><h2 id="grading">Grading</h2><p>x</p>',
+      { keepPageNav: true },
     );
     expect(p.neutral).toContain('<a href="#sec-1-h1">Grading</a>');
     expect(p.neutral).toContain('<h3 id="sec-1-h1">Grading</h3>');
-    expect(p.neutral).toContain(' Nowhere Top</p>');
-    expect(entry(p, 'anchor-link-rewritten')?.count).toBe(1);
-    expect(entry(p, 'anchor-link-unwrapped')?.count).toBe(2);
+    // "Top" with a dead target still means the start of this page: the section's own anchor.
+    expect(p.neutral).toContain(' Nowhere <a href="#sec-1">Top</a></p>');
+    expect(entry(p, 'anchor-link-rewritten')?.count).toBe(2);
+    expect(entry(p, 'anchor-link-unwrapped')?.count).toBe(1);
   });
 });

@@ -118,7 +118,7 @@ describe.skipIf(!present)('end-to-end pipeline on the real export', () => {
       docs.set(
         presentation,
         assembleDocument({
-          options: { presentation, palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: true, language: 'en' },
+          options: { presentation, palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: true, keepPageNav: false, language: 'en' },
           cover: {
             courseTitle: cart.title,
             courseCode: cart.courseCode,
@@ -285,7 +285,7 @@ describe.skipIf(!present)('end-to-end pipeline on the real export', () => {
       );
     }
     const doc = assembleDocument({
-      options: { presentation: 'styled', palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: true, language: 'en' },
+      options: { presentation: 'styled', palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: true, keepPageNav: false, language: 'en' },
       cover: {
         courseTitle: cart.title,
         courseCode: cart.courseCode,
@@ -376,7 +376,7 @@ describe('end-to-end pipeline on the synthetic fixture', () => {
 
   it.each(PRESENTATIONS)('%s: every kind produces a valid, script-free section', (presentation) => {
     const doc = assembleDocument({
-      options: { presentation, palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: presentation !== 'styled', language: 'en' },
+      options: { presentation, palette: 'sapphire-brass', showCover: true, showToc: true, pageBreaks: presentation !== 'styled', keepPageNav: false, language: 'en' },
       cover: { courseTitle: cart.title, courseCode: cart.courseCode, term: cart.term },
       sections,
     });
@@ -419,7 +419,7 @@ describe('end-to-end pipeline on the synthetic fixture', () => {
   it('is deterministic and reports fixes', async () => {
     const make = (): AssembledDoc =>
       assembleDocument({
-        options: { presentation: 'styled', palette: 'sapphire-brass', showCover: false, showToc: true, pageBreaks: true, language: 'en' },
+        options: { presentation: 'styled', palette: 'sapphire-brass', showCover: false, showToc: true, pageBreaks: true, keepPageNav: false, language: 'en' },
         cover: { courseTitle: cart.title },
         sections,
       });
@@ -435,7 +435,7 @@ describe('end-to-end pipeline on the synthetic fixture', () => {
     expect(other.neutral).toBe('');
     expect(other.report.map((e) => e.code)).toEqual(['title-only']);
     const doc = assembleDocument({
-      options: { presentation: 'styled', palette: 'sapphire-brass', showCover: false, showToc: false, pageBreaks: false, language: 'en' },
+      options: { presentation: 'styled', palette: 'sapphire-brass', showCover: false, showToc: false, pageBreaks: false, keepPageNav: false, language: 'en' },
       cover: { courseTitle: cart.title },
       sections,
     });

@@ -196,6 +196,12 @@ export interface ProcessOptions {
    */
   resolveWikiRef?: (ref: string) => string | null;
   language?: string;
+  /**
+   * Keep each page's own navigation links (contents lists, jump links,
+   * "Back to top"). Off by default: they are removed and reported, since the
+   * document has its own table of contents.
+   */
+  keepPageNav?: boolean;
 }
 
 export interface ProcessedPage {
@@ -280,6 +286,8 @@ export interface DocOptions {
   showCover: boolean;
   showToc: boolean;
   pageBreaks: boolean;
+  /** Keep each page's own on-page navigation (contents lists, jump links, "Back to top"). Off removes it. */
+  keepPageNav: boolean;
   /** Optional "Generated on …" footer text. Off by default (determinism). */
   stamp?: string;
   /** BCP-47 language tag for the document. */

@@ -95,6 +95,7 @@ describe('useSyllabus', () => {
       showCover: true,
       showToc: true,
       pageBreaks: true,
+      keepPageNav: false,
       language: 'en',
     });
     expect(model.state.includeLogo).toBe(true);
@@ -293,6 +294,12 @@ describe('useSyllabus', () => {
     act(() => model.actions.setOptions({ language: 'es-MX', showToc: false }));
     expect(model.options.language).toBe('es');
     expect(model.options.showToc).toBe(false);
+    // Keeping on-page navigation changes the processed pages, so it is a content change, not a look.
+    act(() => model.actions.setOptions({ showToc: true }));
+    expect(model.state.liveReason).toBe('look');
+    act(() => model.actions.setOptions({ keepPageNav: true }));
+    expect(model.options.keepPageNav).toBe(true);
+    expect(model.state.liveReason).toBe('content');
     act(() => model.actions.setCover({ instructor: '  Dr. Ada Lovelace ', courseTitle: 'ignored' }));
     expect(model.cover.instructor).toBe('  Dr. Ada Lovelace ');
     expect(model.cover.courseTitle).toBe(model.state.cart!.title);
