@@ -44,6 +44,9 @@ const SHARED = `/* ---- print ---- */
   .sg-skip {
     display: none !important;
   }
+  .sg-sr-only {
+    display: none !important;
+  }
   .sg-cover:not(.sg-cover-min), .sg-toc {
     break-after: page;
     page-break-after: always;

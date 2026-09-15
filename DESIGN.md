@@ -299,6 +299,13 @@ get nothing promoted.
   block around it must still have text of its own. Anywhere else it would
   hide real content and is dropped and reported. No other ARIA attribute
   survives.
+- Screen-reader-only text (a table caption, "(opens in a new tab)") hidden
+  by the inline pattern (`position: absolute`, `overflow: hidden`, a 1px box
+  or a clip) or by an LMS class such as `screenreader-only` or `sr-only` is
+  kept and given our own `sg-sr-only` class in both looks, so the saved
+  file's own stylesheet hides it on screen and in print even where the
+  inline style or the LMS stylesheet is gone. Reported as information.
+  Nothing is removed: a hidden label may be the only name a link has.
 - Document: `lang` attribute, page `<title>`, one `<h1>`, `<main>` landmark,
   skip link, `<nav>` for the TOC.
 
@@ -325,7 +332,6 @@ Translate before removing (these carry meaning):
 | `text-decoration: line-through` | `<s>` |
 | `text-align: center` / `right` on a block | our own alignment class |
 | explicit pixel width on an image | percentage of content width, capped |
-| the screen-reader-only pattern (`position: absolute`, `overflow: hidden`, a 1px box or a clip) | our own `sg-sr-only` class, so a hidden table caption or "(opens in a new tab)" note stays hidden |
 
 Then remove:
 

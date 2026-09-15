@@ -8,8 +8,8 @@
  * original keeps the aria-hidden="true" the structure pass validated (a badge
  * or arrow screen readers should skip); neutral drops those decorations
  * altogether, since without their styling they are stray characters. Neither
- * carries any other ARIA. Screen-reader-only styling (absolute, 1px, clipped)
- * becomes our own sg-sr-only class in neutral so the text stays hidden.
+ * carries any other ARIA. Screen-reader-only text keeps the sg-sr-only class
+ * the structure pass gave it, so the saved file's own CSS hides it in both.
  */
 import {
   addClass, blockify, BLOCK_TAGS, elements, isBlock, isBoldWeight, isElement, isEmptyBlock, isMath,
@@ -202,7 +202,6 @@ function translateStyles(root: Element): void {
 
     const st = styleOf(el);
     if (st.size) {
-      if (isScreenReaderOnly(st)) addClass(el, 'sg-sr-only');
       const wraps: string[] = [];
       const heading = /^h[1-6]$/.test(tag);
       if (isBoldWeight(st.get('font-weight')) && !heading && tag !== 'strong' && tag !== 'th') wraps.push('strong');
@@ -227,20 +226,6 @@ function translateStyles(root: Element): void {
       if (share !== null) el.setAttribute('data-sg-width', String(Math.min(100, Math.max(1, share))));
     }
   }
-}
-
-/**
- * The screen-reader-only pattern: absolutely positioned, clipped to nothing
- * (1px box, or a clip), overflow hidden. Its text is meant for assistive
- * technology, so it keeps that meaning as a class once the style is gone.
- */
-function isScreenReaderOnly(st: Map<string, string>): boolean {
-  if ((st.get('position') ?? '').toLowerCase() !== 'absolute') return false;
-  if ((st.get('overflow') ?? '').toLowerCase() !== 'hidden') return false;
-  const w = pxOf(st.get('width'));
-  const h = pxOf(st.get('height'));
-  const tiny = w !== null && h !== null && w <= 1 && h <= 1;
-  return tiny || st.has('clip') || st.has('clip-path');
 }
 
 // ---------------------------------------------------------------------------

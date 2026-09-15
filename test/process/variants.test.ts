@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { run } from './helpers';
+import { entry, run } from './helpers';
 
 describe('presentation variants (§6e)', () => {
   it('neutral translates meaning-carrying styles then strips everything', async () => {
@@ -98,7 +98,7 @@ describe('presentation variants (§6e)', () => {
     expect(p.neutral).toBe('<p>Body only</p>');
   });
 
-  it('neutral keeps screen-reader-only text hidden with our own class; original keeps the author style', async () => {
+  it('screen-reader-only text gets our own class in both looks, so the saved file\'s CSS hides it wherever the style is lost', async () => {
     const SR = 'position: absolute; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; white-space: nowrap; border: 0px;';
     const p = await run(
       `<table><caption style="${SR}">1. Course number. Columns: Attribute, Specification.</caption>` +
@@ -113,7 +113,19 @@ describe('presentation variants (§6e)', () => {
         '<p><a href="https://thonny.org/">Thonny<span class="sg-sr-only"> (opens in a new tab)</span></a> is free.</p>' +
         '<p><span class="sg-sr-only">clipped</span>just positioned</p>',
     );
-    expect(p.original).toContain(`<caption style="${SR}">`);
-    expect(p.original).not.toContain('sg-sr-only');
+    // Original keeps the author's style and gets the class as well.
+    expect(p.original).toContain(`<caption style="${SR}" class="sg-sr-only">`);
+    expect(p.original.match(/class="sg-sr-only"/g)).toHaveLength(3);
+    expect(entry(p, 'sr-only-kept')?.count).toBe(3);
+  });
+
+  it('marks text hidden by an LMS class (screenreader-only, visually-hidden) the same way in both looks', async () => {
+    const p = await run(
+      '<p><a href="https://example.edu/next">Next <span class="screenreader-only">module</span></a> <span class="visually-hidden">Current</span> here</p>',
+    );
+    const out = '<p><a href="https://example.edu/next">Next <span class="sg-sr-only">module</span></a> <span class="sg-sr-only">Current</span> here</p>';
+    expect(p.neutral).toBe(out);
+    expect(p.original).toBe(out);
+    expect(entry(p, 'sr-only-kept')?.count).toBe(2);
   });
 });

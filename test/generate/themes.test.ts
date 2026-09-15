@@ -223,9 +223,10 @@ describe('print rules', () => {
     expect(shared).toMatch(/widows:\s*3/);
   });
 
-  it('prints toc links as static text and hides the skip link', () => {
+  it('prints toc links as static text and hides the skip link and screen-reader-only text', () => {
     expect(shared).toMatch(/\.sg-toc a\s*\{[^}]*color:\s*inherit !important[^}]*text-decoration:\s*none !important/);
     expect(shared).toMatch(/\.sg-skip\s*\{[^}]*display:\s*none !important/);
+    expect(shared).toMatch(/\.sg-sr-only\s*\{[^}]*display:\s*none !important/);
   });
 
   it('original collapses every fill and colour to black on white and keeps borders', () => {

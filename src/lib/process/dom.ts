@@ -282,3 +282,16 @@ export function stripLeadingChars(el: Element, count: number): void {
     left -= take;
   }
 }
+
+/**
+ * The screen-reader-only pattern: absolutely positioned, clipped to nothing
+ * (a 1px box, or a clip), overflow hidden. Its text is meant for assistive
+ * technology.
+ */
+export function isScreenReaderOnlyStyle(st: Map<string, string>): boolean {
+  if ((st.get('position') ?? '').toLowerCase() !== 'absolute') return false;
+  if ((st.get('overflow') ?? '').toLowerCase() !== 'hidden') return false;
+  const w = pxOf(st.get('width'));
+  const h = pxOf(st.get('height'));
+  return (w !== null && h !== null && w <= 1 && h <= 1) || st.has('clip') || st.has('clip-path');
+}

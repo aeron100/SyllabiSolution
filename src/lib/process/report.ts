@@ -191,6 +191,11 @@ const MESSAGES: Record<string, { severity: ReportSeverity; message: Message }> =
     severity: 'info',
     message: (n) => `${n} inline SVG ${one(n, 'drawing was', 'drawings were')} removed; ${one(n, 'it', 'they')} cannot be checked for safety.`,
   },
+  'sr-only-kept': {
+    severity: 'info',
+    message: (n) =>
+      `${n} screen-reader-only ${one(n, 'note', 'notes')} (a table caption, "opens in a new tab") ${one(n, 'is', 'are')} kept for screen readers and ${one(n, 'stays', 'stay')} hidden on screen and in print.`,
+  },
   'title-only': {
     severity: 'info',
     message: () => 'This item is not a page (a question bank or settings bundle, for example); only its title appears.',

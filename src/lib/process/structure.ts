@@ -4,9 +4,9 @@
  */
 import type { ProcessOptions } from '../types';
 import {
-  BLOCK_TAGS, blockify, cleanText, elements, hasSignificantContent, INLINE_FORMAT_TAGS, isBlank, isBlock, isElement,
-  isEmptyBlock, isEntirelyBold, isHeading, isLanguageTag, isText, pxOf, rename, reverseElements, stripLeadingChars,
-  styleOf, textOf, unwrap,
+  addClass, BLOCK_TAGS, blockify, cleanText, elements, hasSignificantContent, INLINE_FORMAT_TAGS, isBlank, isBlock,
+  isElement, isEmptyBlock, isEntirelyBold, isHeading, isLanguageTag, isScreenReaderOnlyStyle, isText, pxOf, rename,
+  reverseElements, stripLeadingChars, styleOf, textOf, unwrap,
 } from './dom';
 import { assignHeadingIds, normalizeHeadings, promoteFakeHeadings } from './headings';
 import { imageDimensions } from './assets';
@@ -20,6 +20,7 @@ export function fixStructure(root: Element, opts: ProcessOptions, rep: Reporter)
   if (!opts.keepPageNav) removePageNavigation(root, topIds, rep);
   unwrapLandmarks(root);
   fixAriaHidden(root, rep);
+  markScreenReaderOnly(root, rep);
   removeEmptyInline(root);
   removeEmptyBlocks(root, rep);
   unwrapLayoutTables(root, rep);
@@ -205,6 +206,39 @@ function fixAriaHidden(root: Element, rep: Reporter): void {
     if (value === 'true') dropped++;
   }
   if (dropped) rep.add('aria-hidden-removed', dropped);
+}
+
+// ---------------------------------------------------------------------------
+// Screen-reader-only text
+// ---------------------------------------------------------------------------
+
+/** Class names that hide text visually inside an LMS or a framework; their stylesheets do not travel with the page. */
+const SR_ONLY_CLASSES = new Set([
+  'sr-only', 'screenreader-only', 'screen-reader-only', 'screen-reader-text', 'visually-hidden', 'visuallyhidden',
+  'a11y-hidden', 'element-invisible',
+]);
+
+function hasSrOnlyClass(el: Element): boolean {
+  return (el.getAttribute('class') ?? '').toLowerCase().split(/\s+/).some((c) => SR_ONLY_CLASSES.has(c));
+}
+
+/**
+ * Text written for screen readers (a table caption, "(opens in a new tab)")
+ * is hidden by an inline style or by a class the LMS stylesheet defined.
+ * Neither survives the presentation switch or a copy into another program,
+ * so the text gets our own class, which the saved file's stylesheet hides on
+ * screen and in print in both looks. Nothing is removed: a hidden label may
+ * be the only name a link has.
+ */
+function markScreenReaderOnly(root: Element, rep: Reporter): void {
+  let n = 0;
+  for (const el of elements(root, '[style], [class]')) {
+    if (el.classList.contains('sg-sr-only')) continue;
+    if (!(isScreenReaderOnlyStyle(styleOf(el)) || hasSrOnlyClass(el))) continue;
+    addClass(el, 'sg-sr-only');
+    n++;
+  }
+  if (n) rep.add('sr-only-kept', n);
 }
 
 // ---------------------------------------------------------------------------
