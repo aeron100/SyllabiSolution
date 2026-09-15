@@ -325,12 +325,16 @@ Translate before removing (these carry meaning):
 | `text-decoration: line-through` | `<s>` |
 | `text-align: center` / `right` on a block | our own alignment class |
 | explicit pixel width on an image | percentage of content width, capped |
+| the screen-reader-only pattern (`position: absolute`, `overflow: hidden`, a 1px box or a clip) | our own `sg-sr-only` class, so a hidden table caption or "(opens in a new tab)" note stays hidden |
 
 Then remove:
 
 - All `class` and `id` attributes (we generate our own anchors).
 - All inline `style` attributes.
-- All ARIA attributes except the `aria-hidden="true"` that 6d validated.
+- All ARIA attributes, and with them the inline decorations 6d validated as
+  `aria-hidden="true"` (a number badge, an arrow): Styled has no styling to
+  make them badges again, and a bare highlighted "1" before a heading is
+  noise. Original keeps them, styled as the author had them.
 - `<font>`, `<center>`, and `<span>`/`<div>` wrappers left empty of attributes.
 - `width`/`height` attributes on tables and cells.
 

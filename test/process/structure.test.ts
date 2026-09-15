@@ -343,19 +343,19 @@ describe('on-page navigation (§6d)', () => {
 });
 
 describe('aria-hidden (§6d)', () => {
-  it('keeps aria-hidden on a number badge and an arrow, in both variants, so screen readers skip them', async () => {
+  it('keeps aria-hidden on a number badge and an arrow in Original, so screen readers skip them; Styled drops the decorations', async () => {
     const p = await run(
       '<h2 id="a"><mark aria-hidden="true">1</mark>Course number</h2><p>x <a href="#a">Back to top<span aria-hidden="true"> ↑</span></a></p>' +
         '<ul><li><a href="#a"><mark aria-hidden="true">1</mark>Course number</a></li></ul>',
       { keepPageNav: true },
     );
-    expect(p.neutral).toBe(
-      '<h3 id="sec-1-h1"><mark aria-hidden="true">1</mark>Course number</h3>' +
-        '<p>x <a href="#sec-1-h1">Back to top<span aria-hidden="true"> ↑</span></a></p>' +
-        '<ul><li><a href="#sec-1-h1"><mark aria-hidden="true">1</mark>Course number</a></li></ul>',
-    );
     expect(p.original).toContain('<mark aria-hidden="true">1</mark>Course number</h3>');
-    expect(p.original).toContain('<span aria-hidden="true"> ↑</span>');
+    expect(p.original).toContain('<a href="#sec-1-h1">Back to top<span aria-hidden="true"> ↑</span></a>');
+    expect(p.original).toContain('<a href="#sec-1-h1"><mark aria-hidden="true">1</mark>Course number</a>');
+    // Styled has no styling to make the badge a badge again: without it, "1Course number" is just noise.
+    expect(p.neutral).toBe(
+      '<h3 id="sec-1-h1">Course number</h3><p>x <a href="#sec-1-h1">Back to top</a></p><ul><li><a href="#sec-1-h1">Course number</a></li></ul>',
+    );
     expect(entry(p, 'aria-hidden-removed')).toBeUndefined();
   });
 
@@ -375,7 +375,8 @@ describe('aria-hidden (§6d)', () => {
 
   it('lets image alt text name a link whose only text is hidden', async () => {
     const p = await run('<p><a href="https://example.edu"><span aria-hidden="true">→</span><img src="go.png" alt="Go"></a></p>');
-    expect(p.neutral).toContain('<span aria-hidden="true">→</span><img src="data:image/png;base64,');
+    expect(p.original).toContain('<span aria-hidden="true">→</span><img src="data:image/png;base64,');
+    expect(p.neutral).toMatch(/<a href="https:\/\/example.edu"><img src="data:image\/png;base64,/);
     expect(entry(p, 'aria-hidden-removed')).toBeUndefined();
   });
 });

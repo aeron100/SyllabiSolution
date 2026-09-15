@@ -2,7 +2,8 @@
  * Base stylesheet shared by every presentation: the page frame (cover, TOC,
  * section spacing, skip link), max-width caps so nothing clips, table
  * borders, and the markers the processing pass emits (.sg-meta, .sg-embed,
- * .sg-media, .sg-missing-image, .sg-equation, .sg-center, .sg-right).
+ * .sg-media, .sg-missing-image, .sg-equation, .sg-center, .sg-right,
+ * .sg-sr-only).
  *
  * It never sets a font-family or a text colour on body content, so the
  * Original presentation (base + a light lock) leaves the instructor's
@@ -23,6 +24,20 @@ body {
 }
 .sg-cover, .sg-toc, .sg-section, .sg-stamp {
   box-sizing: border-box;
+}
+
+/* screen-reader-only text from the source page (a table caption, "(opens in a new tab)") */
+.sg-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* skip link: visually hidden until it receives focus */

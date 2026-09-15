@@ -170,6 +170,7 @@ describe('base frame rules', () => {
   it('has the page frame, skip link, caps, borders and marker styles', () => {
     expect(BASE_CSS).toMatch(/body\s*\{[^}]*max-width:\s*52rem/);
     expect(BASE_CSS).toMatch(/\.sg-skip\s*\{[^}]*clip-path:\s*inset\(50%\)/);
+    expect(BASE_CSS).toMatch(/\.sg-sr-only\s*\{[^}]*clip-path:\s*inset\(50%\)/);
     expect(BASE_CSS).toMatch(/\.sg-skip:focus[^{]*\{[^}]*position:\s*fixed/);
     expect(BASE_CSS).toContain('.sg-center { text-align: center; }');
     expect(BASE_CSS).toContain('.sg-right { text-align: right; }');

@@ -5,8 +5,11 @@
  *            class, id, data attributes and role stripped; low contrast reported.
  * neutral  — meaning-carrying styles translated to elements/classes, then
  *            every style, class, id, width, height, font and center removed.
- * Both keep the aria-hidden="true" the structure pass validated (a badge or
- * arrow screen readers should skip), and nothing else from ARIA.
+ * original keeps the aria-hidden="true" the structure pass validated (a badge
+ * or arrow screen readers should skip); neutral drops those decorations
+ * altogether, since without their styling they are stray characters. Neither
+ * carries any other ARIA. Screen-reader-only styling (absolute, 1px, clipped)
+ * becomes our own sg-sr-only class in neutral so the text stays hidden.
  */
 import {
   addClass, blockify, BLOCK_TAGS, elements, isBlock, isBoldWeight, isElement, isEmptyBlock, isMath,
@@ -30,7 +33,7 @@ const NEUTRAL_KEEP: Record<string, Set<string>> = {
   blockquote: new Set(['cite']),
   q: new Set(['cite']),
 };
-const NEUTRAL_KEEP_ALL = new Set(['lang', 'dir', 'aria-hidden']);
+const NEUTRAL_KEEP_ALL = new Set(['lang', 'dir']);
 
 export interface Variants {
   original: string;
@@ -139,6 +142,10 @@ function finishOriginal(root: Element, sectionId: string, rep: Reporter): void {
 // ---------------------------------------------------------------------------
 
 function finishNeutral(root: Element, sectionId: string): void {
+  // Decorations the author hid from screen readers (a number badge, an arrow):
+  // the structure pass kept only the inline ones the surrounding text stands
+  // without, and Styled has no styling to make them badges again.
+  for (const el of reverseElements(root, '[aria-hidden="true"]')) el.remove();
   translateStyles(root);
   stripNeutral(root, sectionId);
   // The share of the content width travels as a percentage `width` attribute
@@ -195,6 +202,7 @@ function translateStyles(root: Element): void {
 
     const st = styleOf(el);
     if (st.size) {
+      if (isScreenReaderOnly(st)) addClass(el, 'sg-sr-only');
       const wraps: string[] = [];
       const heading = /^h[1-6]$/.test(tag);
       if (isBoldWeight(st.get('font-weight')) && !heading && tag !== 'strong' && tag !== 'th') wraps.push('strong');
@@ -219,6 +227,20 @@ function translateStyles(root: Element): void {
       if (share !== null) el.setAttribute('data-sg-width', String(Math.min(100, Math.max(1, share))));
     }
   }
+}
+
+/**
+ * The screen-reader-only pattern: absolutely positioned, clipped to nothing
+ * (1px box, or a clip), overflow hidden. Its text is meant for assistive
+ * technology, so it keeps that meaning as a class once the style is gone.
+ */
+function isScreenReaderOnly(st: Map<string, string>): boolean {
+  if ((st.get('position') ?? '').toLowerCase() !== 'absolute') return false;
+  if ((st.get('overflow') ?? '').toLowerCase() !== 'hidden') return false;
+  const w = pxOf(st.get('width'));
+  const h = pxOf(st.get('height'));
+  const tiny = w !== null && h !== null && w <= 1 && h <= 1;
+  return tiny || st.has('clip') || st.has('clip-path');
 }
 
 // ---------------------------------------------------------------------------

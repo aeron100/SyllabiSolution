@@ -97,4 +97,23 @@ describe('presentation variants (§6e)', () => {
     );
     expect(p.neutral).toBe('<p>Body only</p>');
   });
+
+  it('neutral keeps screen-reader-only text hidden with our own class; original keeps the author style', async () => {
+    const SR = 'position: absolute; width: 1px; height: 1px; padding: 0px; margin: -1px; overflow: hidden; white-space: nowrap; border: 0px;';
+    const p = await run(
+      `<table><caption style="${SR}">1. Course number. Columns: Attribute, Specification.</caption>` +
+        '<thead><tr><th scope="col">Attribute</th></tr></thead><tbody><tr><td>Units</td></tr></tbody></table>' +
+        `<p><a href="https://thonny.org/">Thonny<span style="${SR}"> (opens in a new tab)</span></a> is free.</p>` +
+        '<p><span style="position: absolute; overflow: hidden; clip: rect(0 0 0 0); width: 1px; height: 1px;">clipped</span>' +
+        '<span style="position: absolute; left: 20px;">just positioned</span></p>',
+    );
+    expect(p.neutral).toBe(
+      '<table><caption class="sg-sr-only">1. Course number. Columns: Attribute, Specification.</caption>' +
+        '<thead><tr><th scope="col">Attribute</th></tr></thead><tbody><tr><td>Units</td></tr></tbody></table>' +
+        '<p><a href="https://thonny.org/">Thonny<span class="sg-sr-only"> (opens in a new tab)</span></a> is free.</p>' +
+        '<p><span class="sg-sr-only">clipped</span>just positioned</p>',
+    );
+    expect(p.original).toContain(`<caption style="${SR}">`);
+    expect(p.original).not.toContain('sg-sr-only');
+  });
 });
