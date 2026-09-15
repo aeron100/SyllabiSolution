@@ -4,9 +4,9 @@
  */
 import type { ProcessOptions } from '../types';
 import {
-  blockify, cleanText, elements, hasSignificantContent, INLINE_FORMAT_TAGS, isBlank, isElement, isEmptyBlock,
-  isEntirelyBold, isHeading, isLanguageTag, isText, pxOf, rename, reverseElements, stripLeadingChars, styleOf, textOf,
-  unwrap,
+  BLOCK_TAGS, blockify, cleanText, elements, hasSignificantContent, INLINE_FORMAT_TAGS, isBlank, isBlock, isElement,
+  isEmptyBlock, isEntirelyBold, isHeading, isLanguageTag, isText, pxOf, rename, reverseElements, stripLeadingChars,
+  styleOf, textOf, unwrap,
 } from './dom';
 import { assignHeadingIds, normalizeHeadings, promoteFakeHeadings } from './headings';
 import { imageDimensions } from './assets';
@@ -19,6 +19,7 @@ export function fixStructure(root: Element, opts: ProcessOptions, rep: Reporter)
   const topIds = pageWrapperIds(root);
   if (!opts.keepPageNav) removePageNavigation(root, topIds, rep);
   unwrapLandmarks(root);
+  fixAriaHidden(root, rep);
   removeEmptyInline(root);
   removeEmptyBlocks(root, rep);
   unwrapLayoutTables(root, rep);
@@ -157,6 +158,53 @@ function pageWrapperIds(root: Element): Set<string> {
     if (id && !isHeading(el) && textOf(el) === all) ids.add(id);
   }
   return ids;
+}
+
+// ---------------------------------------------------------------------------
+// aria-hidden
+// ---------------------------------------------------------------------------
+
+const HOST_SELECTOR = 'a[href], ' + Array.from(BLOCK_TAGS).join(', ');
+const CONTENT_SELECTOR = 'a[href], img, table, ul, ol, dl, math, h1, h2, h3, h4, h5, h6, .sg-embed, .sg-media, .sg-missing-image, .sg-equation';
+
+/** Text (and image alt text) of `host` outside the `skip` subtree. */
+function textOutside(host: Element, skip: Element): string {
+  let out = '';
+  const walk = (n: Node): void => {
+    if (n === skip) return;
+    if (isText(n)) out += n.data;
+    else if (isElement(n)) {
+      if (n.localName === 'img') out += ' ' + (n.getAttribute('alt') ?? '') + ' ';
+      for (const c of Array.from(n.childNodes)) walk(c);
+    }
+  };
+  walk(host);
+  return cleanText(out);
+}
+
+/**
+ * `aria-hidden="true"` is kept only on an inline decoration: a number badge
+ * before a heading, an arrow after "Back to top", an icon. That is an
+ * element that is not a block, heading, or link, holds no link, image, or
+ * other content of its own, and whose surrounding link or block still has
+ * text without it. Anywhere else the attribute would hide real content from
+ * screen readers, so it goes.
+ */
+function isSafeToHide(el: Element, root: Element): boolean {
+  if (isBlock(el) || el.localName === 'a' || el.querySelector(CONTENT_SELECTOR)) return false;
+  const host = el.parentElement?.closest(HOST_SELECTOR) ?? root;
+  return textOutside(host, el) !== '';
+}
+
+function fixAriaHidden(root: Element, rep: Reporter): void {
+  let dropped = 0;
+  for (const el of elements(root, '[aria-hidden]')) {
+    const value = (el.getAttribute('aria-hidden') ?? '').trim().toLowerCase();
+    if (value === 'true' && isSafeToHide(el, root)) continue;
+    el.removeAttribute('aria-hidden');
+    if (value === 'true') dropped++;
+  }
+  if (dropped) rep.add('aria-hidden-removed', dropped);
 }
 
 // ---------------------------------------------------------------------------

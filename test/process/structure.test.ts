@@ -341,3 +341,41 @@ describe('on-page navigation (§6d)', () => {
     expect(entry(q, 'anchor-link-unwrapped')).toBeUndefined();
   });
 });
+
+describe('aria-hidden (§6d)', () => {
+  it('keeps aria-hidden on a number badge and an arrow, in both variants, so screen readers skip them', async () => {
+    const p = await run(
+      '<h2 id="a"><mark aria-hidden="true">1</mark>Course number</h2><p>x <a href="#a">Back to top<span aria-hidden="true"> ↑</span></a></p>' +
+        '<ul><li><a href="#a"><mark aria-hidden="true">1</mark>Course number</a></li></ul>',
+      { keepPageNav: true },
+    );
+    expect(p.neutral).toBe(
+      '<h3 id="sec-1-h1"><mark aria-hidden="true">1</mark>Course number</h3>' +
+        '<p>x <a href="#sec-1-h1">Back to top<span aria-hidden="true"> ↑</span></a></p>' +
+        '<ul><li><a href="#sec-1-h1"><mark aria-hidden="true">1</mark>Course number</a></li></ul>',
+    );
+    expect(p.original).toContain('<mark aria-hidden="true">1</mark>Course number</h3>');
+    expect(p.original).toContain('<span aria-hidden="true"> ↑</span>');
+    expect(entry(p, 'aria-hidden-removed')).toBeUndefined();
+  });
+
+  it('drops aria-hidden where it would hide real content, and any value other than true', async () => {
+    const p = await run(
+      '<p aria-hidden="true">Real text</p>' +
+        '<h2><span aria-hidden="true">Only</span></h2>' +
+        '<p><a href="https://example.edu" aria-hidden="true">Site</a></p>' +
+        '<p><span aria-hidden="true">Go to <a href="https://example.edu/y">Y</a></span> now</p>' +
+        '<p><span aria-hidden="false">fine</span> text</p>',
+    );
+    expect(p.neutral).not.toContain('aria-');
+    expect(p.original).not.toContain('aria-');
+    expect(p.neutral).toContain('<h3 id="sec-1-h1">Only</h3>');
+    expect(entry(p, 'aria-hidden-removed')?.count).toBe(4);
+  });
+
+  it('lets image alt text name a link whose only text is hidden', async () => {
+    const p = await run('<p><a href="https://example.edu"><span aria-hidden="true">→</span><img src="go.png" alt="Go"></a></p>');
+    expect(p.neutral).toContain('<span aria-hidden="true">→</span><img src="data:image/png;base64,');
+    expect(entry(p, 'aria-hidden-removed')).toBeUndefined();
+  });
+});

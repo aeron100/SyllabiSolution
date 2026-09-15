@@ -95,10 +95,10 @@ describe('safety strip (§6b)', () => {
     expect(entry(p, 'media-omitted')?.count).toBe(2);
   });
 
-  it('drops data-*, loading, aria-* and hidden content', async () => {
+  it('drops data-*, loading, aria-* (other than a safe aria-hidden, see structure) and hidden content', async () => {
     const p = await run(
       '<p><i class="fas fa-book" aria-hidden="true"><span class="dp-icon-content" style="display: none;">&nbsp;</span></i> After completing</p>' +
-        '<p hidden>secret</p><img src="a.png" alt="A" data-api-endpoint="https://x.instructure.com/api" loading="lazy" role="presentation">',
+        '<p hidden>secret</p><img src="a.png" alt="A" aria-describedby="d" data-api-endpoint="https://x.instructure.com/api" loading="lazy" role="presentation">',
     );
     for (const html of [p.original, p.neutral]) {
       expect(html).not.toMatch(/data-|loading=|aria-|display: none|secret|<i>/);

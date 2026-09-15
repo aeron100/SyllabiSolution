@@ -99,6 +99,11 @@ const MESSAGES: Record<string, { severity: ReportSeverity; message: Message }> =
     severity: 'fixed',
     message: (n) => `${n} invalid language ${one(n, 'attribute was', 'attributes were')} removed.`,
   },
+  'aria-hidden-removed': {
+    severity: 'fixed',
+    message: (n) =>
+      `${n} aria-hidden ${one(n, 'attribute', 'attributes')} that would have hidden real content from screen readers ${were(n)} removed.`,
+  },
 
   // ---- still needs you ----------------------------------------------------
   'image-missing-alt': {

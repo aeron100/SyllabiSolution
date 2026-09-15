@@ -46,6 +46,8 @@ export const ALLOWED_ATTR: string[] = [
   'start', 'reversed', 'type', 'value', 'dir', 'lang', 'role', 'datetime', 'cite',
   // read by our passes, stripped from output
   'data-equation-content', 'data-sg-file',
+  // the one ARIA attribute that survives, where the structure pass finds it safe (DESIGN.md §6d)
+  'aria-hidden',
   // MathML presentation attributes
   'xmlns', 'display', 'displaystyle', 'mathvariant', 'mathsize', 'mathcolor', 'mathbackground',
   'fence', 'stretchy', 'largeop', 'movablelimits', 'accent', 'accentunder', 'linethickness',

@@ -5,6 +5,8 @@
  *            class, id, data attributes and role stripped; low contrast reported.
  * neutral  — meaning-carrying styles translated to elements/classes, then
  *            every style, class, id, width, height, font and center removed.
+ * Both keep the aria-hidden="true" the structure pass validated (a badge or
+ * arrow screen readers should skip), and nothing else from ARIA.
  */
 import {
   addClass, blockify, BLOCK_TAGS, elements, isBlock, isBoldWeight, isElement, isEmptyBlock, isMath,
@@ -28,7 +30,7 @@ const NEUTRAL_KEEP: Record<string, Set<string>> = {
   blockquote: new Set(['cite']),
   q: new Set(['cite']),
 };
-const NEUTRAL_KEEP_ALL = new Set(['lang', 'dir']);
+const NEUTRAL_KEEP_ALL = new Set(['lang', 'dir', 'aria-hidden']);
 
 export interface Variants {
   original: string;
@@ -65,6 +67,8 @@ function stripOriginal(root: Element, sectionId: string): void {
       if (name === 'class') keepClasses(el);
       else if (name === 'id') {
         if (!keepId(attr.value, sectionId)) el.removeAttribute(name);
+      } else if (name === 'aria-hidden') {
+        // validated by the structure pass
       } else if (name.startsWith('data-') || name.startsWith('aria-') || name === 'role' || name === 'hidden' || name === 'loading') {
         el.removeAttribute(name);
       }

@@ -292,6 +292,13 @@ get nothing promoted.
   `alt` on a content image → flagged.
 - Images that appear to contain text (heuristic: large, wide aspect, in a
   paragraph by itself, filename hints like "screenshot") → flagged.
+- `aria-hidden="true"` on an inline decoration (a number badge before a
+  heading, an arrow after "Back to top", an icon) is kept, so screen readers
+  do not read "1 Course number": the element must not be a block, heading,
+  or link, must hold no link, image, or other content, and the link or
+  block around it must still have text of its own. Anywhere else it would
+  hide real content and is dropped and reported. No other ARIA attribute
+  survives.
 - Document: `lang` attribute, page `<title>`, one `<h1>`, `<main>` landmark,
   skip link, `<nav>` for the TOC.
 
@@ -323,6 +330,7 @@ Then remove:
 
 - All `class` and `id` attributes (we generate our own anchors).
 - All inline `style` attributes.
+- All ARIA attributes except the `aria-hidden="true"` that 6d validated.
 - `<font>`, `<center>`, and `<span>`/`<div>` wrappers left empty of attributes.
 - `width`/`height` attributes on tables and cells.
 
