@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { NoticeCode } from './lib/types';
-import { Header, STEP_LABELS, StepStrip, type StepNumber } from './components/shell';
-import { LiveRegion, Notice, Tile } from './components/ui';
+import { Header, STEP_LABELS, Splash, StepStrip, type StepNumber } from './components/shell';
+import { LiveRegion, Notice, Tile, TileLink, VisuallyHidden } from './components/ui';
 import { useBeforeUnload } from './hooks/useBeforeUnload';
 import { useColorScheme } from './hooks/useColorScheme';
 import { useSyllabus } from './hooks/useSyllabus';
@@ -9,11 +9,14 @@ import UploadStep from './steps/UploadStep';
 import ChooseStep from './steps/ChooseStep';
 import ArrangeStep from './steps/ArrangeStep';
 import DownloadStep from './steps/DownloadStep';
-import { APP_NAME, NOTICE_COPY, NOTICE_PRINT_BROWSER, REASSURANCE } from './ui/copy';
+import { APP_NAME, DIRECTIONS_LABEL, NOTICE_COPY, NOTICE_PRINT_BROWSER, REASSURANCE } from './ui/copy';
 
 export const START_OVER_CONFIRM = 'Start over? Anything you have not downloaded will be lost.';
 export const START_OVER_LABEL = 'Start over';
 export const COASTLINE_URL = 'https://www.coastline.edu/';
+/** The directions PDF. It ships from public/ into docs/ beside index.html, so the relative link resolves on GitHub Pages. */
+export const DIRECTIONS_FILE = 'Directions for the Syllabus Generator Tool.pdf';
+export const DIRECTIONS_HREF = encodeURI(DIRECTIONS_FILE);
 
 /** §14 notices for step 3: one per distinct sentence (two codes share the images copy). */
 function groupNotices(codes: readonly NoticeCode[]): { text: string; codes: NoticeCode[] }[] {
@@ -38,6 +41,7 @@ export function App() {
   useColorScheme();
   const [step, setStep] = useState<StepNumber>(1);
   const [maxReached, setMaxReached] = useState<StepNumber>(1);
+  const [splash, setSplash] = useState(true);
   const model = useSyllabus({ livePreview: step === 3 });
   const { state, actions } = model;
   useBeforeUnload(model.guardArmed);
@@ -56,6 +60,7 @@ export function App() {
   const cart = state.cart;
   useEffect(() => {
     if (cart) {
+      setSplash(false);
       setStep(2);
       setMaxReached(2);
     } else {
@@ -72,6 +77,12 @@ export function App() {
     if (typeof window !== 'undefined' && typeof window.scrollTo === 'function') window.scrollTo(0, 0);
     headingRef.current?.focus({ preventScroll: true });
   }, [step]);
+
+  // The splash closing hands focus to the step heading, once the dialog (and the page's inertness) is gone.
+  useEffect(() => {
+    if (!splash) headingRef.current?.focus({ preventScroll: true });
+  }, [splash]);
+  const dismissSplash = useCallback((): void => setSplash(false), []);
 
   // Generate re-runs only when the inputs changed (the hook keeps the memo key).
   const generateThenShow = useCallback((): void => {
@@ -202,6 +213,10 @@ export function App() {
       </a>
       <LiveRegion id="app-status" message={state.status} />
       <Header logoHref={COASTLINE_URL}>
+        <TileLink variant="ghost" size="md" icon="bi-file-earmark-pdf" href={DIRECTIONS_HREF} newTab>
+          {DIRECTIONS_LABEL}
+          <VisuallyHidden> (PDF)</VisuallyHidden>
+        </TileLink>
         {cart && (
           <Tile variant="secondary" size="md" icon="bi-arrow-counterclockwise" onClick={startOver}>
             {START_OVER_LABEL}
@@ -217,6 +232,7 @@ export function App() {
       <footer className="app-footer">
         <p>{REASSURANCE}</p>
       </footer>
+      {splash && !cart && <Splash directionsHref={DIRECTIONS_HREF} onDismiss={dismissSplash} />}
     </div>
   );
 }

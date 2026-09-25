@@ -16,3 +16,5 @@ export { Switch } from './Switch';
 export type { SwitchProps } from './Switch';
 export { ProgressBar } from './ProgressBar';
 export type { ProgressBarProps } from './ProgressBar';
+export { TileLink } from './TileLink';
+export type { TileLinkProps } from './TileLink';

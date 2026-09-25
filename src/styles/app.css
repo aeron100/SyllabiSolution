@@ -1011,6 +1011,74 @@ a:hover {
   margin: 0;
 }
 
+/*
+ * Welcome splash: a sheet of paper over the hero on first load, a native
+ * modal <dialog> (top layer, page behind inert). Block layout on purpose:
+ * a display value here would override the UA's dialog:not([open]) hiding.
+ * The backdrop dims the desk but is not a surface any label sits on, so its
+ * translucency leaves every contrast measurable. ::backdrop does not
+ * reliably see custom properties, so its colors are literal.
+ */
+.splash {
+  width: min(34rem, calc(100% - 2 * var(--sg-space-4)));
+  max-width: none;
+  max-height: calc(100% - 2 * var(--sg-space-4));
+  overflow-y: auto;
+  padding: var(--sg-space-6) var(--sg-space-5) var(--sg-space-5);
+  text-align: center;
+}
+.splash[open] {
+  animation: sg-sheet-in var(--sg-motion) var(--sg-ease);
+}
+.splash::backdrop {
+  background: rgba(15, 23, 42, 0.55);
+}
+[data-bs-theme='dark'] .splash::backdrop {
+  background: rgba(0, 0, 0, 0.65);
+}
+.splash-art {
+  display: block;
+  width: 7.5rem;
+  height: auto;
+  margin: 0 auto var(--sg-space-3);
+  color: var(--sg-accent);
+}
+.splash-kicker {
+  margin: 0;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+}
+.splash-title {
+  font-size: var(--sg-text-2xl);
+  margin: var(--sg-space-1) 0 var(--sg-space-3);
+}
+.splash-text {
+  max-width: 40ch;
+  margin: 0 auto var(--sg-space-5);
+  font-size: var(--sg-text-lg);
+}
+.splash-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sg-space-3);
+  margin-bottom: var(--sg-space-4);
+}
+.splash .sg-hint {
+  max-width: 44ch;
+  margin-inline: auto;
+}
+/* Touch-first: on phones both tiles go full width, the directions on top. */
+@media (max-width: 575.98px) {
+  .splash {
+    padding-inline: var(--sg-space-4);
+  }
+  .splash-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 /* ---- 10. Step strip -------------------------------------------------------- */
 
 /* The editorial header: four step tiles and a hairline progress rule. */

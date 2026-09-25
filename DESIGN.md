@@ -59,6 +59,12 @@ Everything is procedural. No AI inference anywhere in Phase 1. No server.
    and opened from disk by double-clicking (`file://`). Code, styles, fonts,
    icons and the logo are inlined; the app makes no network or file request
    of its own. The course export is read through the File API only.
+   It is hosted on GitHub Pages from `docs/`. The one sibling file is the
+   directions PDF, kept in `public/` so every build copies it into `docs/`
+   (the build empties `docs/` first). The header and the welcome splash
+   link to it relatively; following that link is the user's navigation,
+   not a request by the app, and it resolves wherever the PDF sits beside
+   the page.
 
 ## 3. The IMSCC format
 
@@ -615,6 +621,17 @@ two grey text lines, never a real course, name, or code. When a file is
 read, the app announces "Found 33 pages in 9 modules" and advances to step
 2 on its own.
 
+**Welcome splash.** On every load, a sheet of paper opens over the hero as
+a native modal `<dialog>`: the stacking-pages motif, the small-caps kicker
+"Welcome", "New to the Syllabus Generator?", one sentence on what the
+directions cover, then two tiles: "Read the directions" (primary, the PDF
+in a new tab) and "Get started". A hint under them says the PDF opens in a
+new tab and stays under Directions in the header. Focus starts on Get
+started, so Enter or Escape carries a returning user straight on; any of
+Escape, Get started, or following the link closes it and moves focus to
+the step heading. Nothing is remembered (no storage), so it shows again
+on the next load, never after Start over, and an export arriving closes it.
+
 **Step 2 — Choose pages.**
 Two columns on wide screens, stacked on narrow. Left: a "Content types"
 dropdown (closed by default, reading e.g. "2 of 9 shown"), a small toolbar
@@ -739,7 +756,9 @@ desk. Editorial, calm, confident.
   Community College" mark found in the export is not used. The header is a
   landmark
   (`<header>` with the logo as a linked image whose alt text is
-  "Coastline College").
+  "Coastline College"). Its right slot holds a quiet "Directions" link on
+  every step (a ghost tile with a PDF icon, opening the directions PDF in
+  a new tab) and, once an export is loaded, the "Start over" tile.
 - **Color.** The app uses Coastline College's official brand colors from
   its published brand guide: Primary Navy `#003764` (Pantone 2955C),
   Secondary Blue `#6BC4E8` (297C), and Secondary Blue `#3CB4E5` (298C).
@@ -1022,3 +1041,4 @@ Resolved:
 | Content types default | Only Syllabus and Pages shown; all other kinds hidden until turned on | Most likely syllabus material first; nothing is ever missing |
 | Editing the output | None; save the HTML and edit it elsewhere | Edits would be lost on regenerate and bypass the structural pass |
 | Branding | Coastline College logo + "Institutional Effectiveness" tagline in the header; accent from the logo blue | Sponsor identity; coordinated palette |
+| Directions | A PDF beside the page on GitHub Pages; a welcome splash on every load plus a Directions link in the header | Faculty use the tool once a term; the walkthrough is one click away without a help page in the app |

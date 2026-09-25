@@ -12,6 +12,17 @@ export const REASSURANCE = 'Product of Coastline College Institutional Effective
 
 export const STEPS: readonly string[] = ['Upload', 'Choose pages', 'Arrange and style', 'Finalize'];
 
+/** §10 — the welcome splash over step 1, and the header link to the same directions PDF. */
+export const SPLASH = {
+  kicker: 'Welcome',
+  title: 'New to the Syllabus Generator?',
+  text: 'The directions walk you through exporting your course from Canvas and building your syllabus, step by step.',
+  directions: 'Read the directions',
+  start: 'Get started',
+  hint: 'Opens a PDF in a new tab. You can find it later under Directions at the top of the page.',
+} as const;
+export const DIRECTIONS_LABEL = 'Directions';
+
 /** §10 — "How to export from Canvas" disclosure: three short steps. */
 export const EXPORT_STEPS: readonly string[] = [
   'In your Canvas course, open Settings and choose Export Course Content.',

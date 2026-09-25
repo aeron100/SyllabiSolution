@@ -10,8 +10,8 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import axe from 'axe-core';
-import { App, START_OVER_LABEL } from '../../src/App';
-import { REASSURANCE, STATUS } from '../../src/ui/copy';
+import { App, DIRECTIONS_HREF, START_OVER_LABEL } from '../../src/App';
+import { REASSURANCE, SPLASH, STATUS } from '../../src/ui/copy';
 import { buildSample } from '../fixtures/make-sample.mjs';
 
 /** A fresh copy so the bytes sit on a plain ArrayBuffer (what File accepts). */
@@ -110,6 +110,9 @@ describe('App (static)', () => {
     expect(html).toContain(REASSURANCE);
     expect(html).not.toContain(START_OVER_LABEL);
     expect(html).not.toContain('<script');
+    // The directions PDF sits beside index.html, so the header links to it relatively, in a new tab.
+    expect(DIRECTIONS_HREF).toBe('Directions%20for%20the%20Syllabus%20Generator%20Tool.pdf');
+    expect(html).toMatch(new RegExp(`<a class="tile tile-ghost tile-md" target="_blank" rel="noopener noreferrer" href="${DIRECTIONS_HREF}">`));
   });
 });
 
@@ -140,6 +143,45 @@ describe('App (wizard flow)', () => {
     window.history.replaceState({}, '', '/');
   });
 
+  it('opens with the welcome splash, which links to the directions and hands focus to step 1 when closed', async () => {
+    root = createRoot(host);
+    act(() => root?.render(<App />));
+    const dialog = host.querySelector<HTMLDialogElement>('dialog.splash');
+    expect(dialog).not.toBeNull();
+    expect(dialog?.hasAttribute('open')).toBe(true);
+    expect(document.getElementById(dialog?.getAttribute('aria-labelledby') ?? '')?.textContent).toBe(SPLASH.title);
+    expect(document.getElementById(dialog?.getAttribute('aria-describedby') ?? '')?.textContent).toBe(SPLASH.text);
+    expectHeadingOutline();
+    // Focus starts on Get started, so Enter or Escape carries a returning user straight on.
+    expect(document.activeElement).toBe(tileByText(host, SPLASH.start));
+    const link = dialog?.querySelector<HTMLAnchorElement>('a.tile');
+    expect(link?.getAttribute('href')).toBe(DIRECTIONS_HREF);
+    expect(link?.getAttribute('target')).toBe('_blank');
+    expect(link?.textContent).toBe(`${SPLASH.directions} (opens in a new tab)`);
+
+    // Escape (the dialog's cancel event) closes it; focus lands on the step heading, not <body>.
+    act(() => {
+      dialog?.dispatchEvent(new Event('cancel', { cancelable: true }));
+    });
+    expect(host.querySelector('dialog')).toBeNull();
+    expect(document.activeElement).toBe(heading(1));
+
+    // Get started and following the link close it too.
+    act(() => root?.unmount());
+    root = createRoot(host);
+    act(() => root?.render(<App />));
+    act(() => tileByText(host, SPLASH.start).click());
+    expect(host.querySelector('dialog')).toBeNull();
+    expect(document.activeElement).toBe(heading(1));
+    act(() => root?.unmount());
+    root = createRoot(host);
+    act(() => root?.render(<App />));
+    act(() => {
+      host.querySelector<HTMLAnchorElement>('dialog.splash a.tile')?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    expect(host.querySelector('dialog')).toBeNull();
+  });
+
   it('loads ?load=, lands on step 2, and walks every step with focus on each heading', async () => {
     window.history.replaceState({}, '', '/?load=/sample.imscc');
     root = createRoot(host);
@@ -149,6 +191,8 @@ describe('App (wizard flow)', () => {
     await waitFor(() => heading(2) !== null);
     expect(document.getElementById('app-status')?.textContent).toMatch(/^Found \d+ pages? in \d+ modules?\.$/);
     expect(document.activeElement).toBe(heading(2));
+    // An export arriving retires the welcome splash for the rest of the visit.
+    expect(host.querySelector('dialog')).toBeNull();
     expect(document.title).toBe('Choose pages – Syllabus Generator');
     expectHeadingOutline();
     const current = host.querySelector('li[aria-current="step"]');
@@ -240,6 +284,7 @@ describe('App (wizard flow)', () => {
     await waitFor(() => heading(1) !== null);
     expect(window.confirm).not.toHaveBeenCalled();
     expect(document.activeElement).toBe(heading(1));
+    expect(host.querySelector('dialog')).toBeNull();
     expect(document.title).toBe('Syllabus Generator');
     expectHeadingOutline();
     expect(host.querySelector('li[aria-current="step"]')?.textContent).toContain('Upload');

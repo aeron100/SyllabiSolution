@@ -6,3 +6,5 @@ export { WizardFrame } from './WizardFrame';
 export type { WizardFrameProps, WizardNavBack, WizardNavNext } from './WizardFrame';
 export { HeroArt } from './HeroArt';
 export type { HeroArtProps } from './HeroArt';
+export { Splash } from './Splash';
+export type { SplashProps } from './Splash';

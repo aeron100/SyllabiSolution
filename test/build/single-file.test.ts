@@ -18,6 +18,9 @@ const ROOT = process.cwd();
 const DIST = resolve(ROOT, 'docs', 'index.html');
 const present = existsSync(DIST);
 
+/** The one sibling file: the directions PDF the header and the welcome splash link to (src/App.tsx DIRECTIONS_FILE). */
+const DIRECTIONS_FILE = 'Directions for the Syllabus Generator Tool.pdf';
+
 /** Font families that must ship inside the file as WOFF2 data URIs. */
 const FONTS = ['Fraunces', 'Inter', 'bootstrap-icons'] as const;
 
@@ -151,6 +154,13 @@ describe.skipIf(!present)('docs/index.html is a single self-contained file', () 
     for (const name of ['coastline-logo.svg', 'coastline-logo.png', 'sample.imscc']) {
       expect(html.includes(name), `docs/index.html mentions ${name}`).toBe(false);
     }
+  });
+
+  it('ships the directions PDF beside it, so the relative link resolves on GitHub Pages', () => {
+    // public/ is copied into docs/ on every build; a file dropped straight into docs/ is wiped by the next one.
+    expect(existsSync(resolve(ROOT, 'public', DIRECTIONS_FILE)), `public/${DIRECTIONS_FILE}`).toBe(true);
+    expect(existsSync(resolve(ROOT, 'docs', DIRECTIONS_FILE)), `docs/${DIRECTIONS_FILE}`).toBe(true);
+    expect(js.includes(DIRECTIONS_FILE)).toBe(true);
   });
 
   it('is reasonably small (under 4 MB) and reports its size', () => {
