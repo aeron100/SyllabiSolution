@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NoticeCode } from './lib/types';
-import { Header, STEP_LABELS, Splash, StepStrip, type StepNumber } from './components/shell';
+import { Guide, Header, STEP_LABELS, Splash, StepStrip, type StepNumber } from './components/shell';
 import { LiveRegion, Notice, Tile, TileLink, VisuallyHidden } from './components/ui';
 import { useBeforeUnload } from './hooks/useBeforeUnload';
 import { useColorScheme } from './hooks/useColorScheme';
@@ -9,7 +9,10 @@ import UploadStep from './steps/UploadStep';
 import ChooseStep from './steps/ChooseStep';
 import ArrangeStep from './steps/ArrangeStep';
 import DownloadStep from './steps/DownloadStep';
-import { APP_NAME, DIRECTIONS_LABEL, NOTICE_COPY, NOTICE_PRINT_BROWSER, REASSURANCE } from './ui/copy';
+import { APP_NAME, DIRECTIONS_LABEL, GUIDE, NOTICE_COPY, NOTICE_PRINT_BROWSER, REASSURANCE } from './ui/copy';
+import { currentBrowserIsChromium } from './ui/format';
+import { guideFor, type GuideFacts } from './ui/guide';
+import { KIND_ORDER } from './ui/kinds';
 
 export const START_OVER_CONFIRM = 'Start over? Anything you have not downloaded will be lost.';
 export const START_OVER_LABEL = 'Start over';
@@ -35,13 +38,16 @@ function groupNotices(codes: readonly NoticeCode[]): { text: string; codes: Noti
  * (DESIGN.md §10 "Flow"). The wizard position lives here; everything about
  * the course export lives in useSyllabus. Focus moves to the step heading
  * and the page title names the step whenever the step changes (2.4.2).
- * Back never loses state.
+ * Back never loses state. Guide mode (§10 "Guide me") is a preference kept
+ * here, in memory only: the header toggle and the splash turn it on, the
+ * card's Hide turns it off, and Start over leaves it as it was.
  */
 export function App() {
   useColorScheme();
   const [step, setStep] = useState<StepNumber>(1);
   const [maxReached, setMaxReached] = useState<StepNumber>(1);
   const [splash, setSplash] = useState(true);
+  const [guide, setGuide] = useState(false);
   const model = useSyllabus({ livePreview: step === 3 });
   const { state, actions } = model;
   useBeforeUnload(model.guardArmed);
@@ -83,6 +89,12 @@ export function App() {
     if (!splash) headingRef.current?.focus({ preventScroll: true });
   }, [splash]);
   const dismissSplash = useCallback((): void => setSplash(false), []);
+  const guideFromSplash = useCallback((): void => {
+    setGuide(true);
+    setSplash(false);
+  }, []);
+  const hideGuide = useCallback((): void => setGuide(false), []);
+  const chromium = useMemo(() => currentBrowserIsChromium(), []);
 
   // Generate re-runs only when the inputs changed (the hook keeps the memo key).
   const generateThenShow = useCallback((): void => {
@@ -133,6 +145,24 @@ export function App() {
       </div>
     ) : null;
 
+  // The guide card for the step on screen, from what the app can see (src/ui/guide.ts).
+  let guideCard = null;
+  if (guide) {
+    // The step whose body is on screen (the same rule as below: no export is step 1, no document is step 3).
+    const guideStep: StepNumber = step === 1 || !cart ? 1 : step === 4 && state.generated === null ? 3 : step;
+    const facts: GuideFacts = {
+      selected: state.selected.length,
+      syllabusChecked: cart !== null && state.selected.some((id) => cart.resources.get(id)?.kind === 'syllabus'),
+      previewed: state.focusedId !== null,
+      hiddenKinds: KIND_ORDER.filter((k) => model.counts[k] !== undefined && model.hiddenKinds.has(k)),
+      instructor: state.cover.instructor.trim() !== '',
+      printed: state.printed,
+      todo: state.generated ? state.generated.report.todo.length : null,
+      chromium,
+    };
+    guideCard = <Guide step={guideStep} content={guideFor(guideStep, facts)} onHide={hideGuide} />;
+  }
+
   let body = null;
   if (step === 1 || !cart) {
     body = (
@@ -142,6 +172,7 @@ export function App() {
         status={state.status}
         error={state.error ?? undefined}
         headingRef={headingRef}
+        guide={guideCard}
       />
     );
   } else if (step === 2) {
@@ -163,6 +194,7 @@ export function App() {
         onBack={() => go(1)}
         onNext={() => go(3)}
         headingRef={headingRef}
+        guide={guideCard}
       />
     );
   } else if (step === 3 || state.generated === null) {
@@ -185,6 +217,7 @@ export function App() {
         generating={state.phase === 'generating'}
         progress={state.progress ?? undefined}
         headingRef={headingRef}
+        guide={guideCard}
       />
     );
   } else {
@@ -202,6 +235,7 @@ export function App() {
         printHint={state.printNotice ? NOTICE_PRINT_BROWSER : undefined}
         onBack={() => go(3)}
         headingRef={headingRef}
+        guide={guideCard}
       />
     );
   }
@@ -213,6 +247,16 @@ export function App() {
       </a>
       <LiveRegion id="app-status" message={state.status} />
       <Header logoHref={COASTLINE_URL}>
+        {/* A toggle: the name stays "Guide me" and aria-pressed carries the state; the filled icon and border show it too. */}
+        <Tile
+          variant="ghost"
+          size="md"
+          icon={guide ? 'bi-signpost-2-fill' : 'bi-signpost-2'}
+          aria-pressed={guide}
+          onClick={() => setGuide((on) => !on)}
+        >
+          {GUIDE.toggle}
+        </Tile>
         <TileLink variant="ghost" size="md" icon="bi-file-earmark-pdf" href={DIRECTIONS_HREF} newTab>
           {DIRECTIONS_LABEL}
           <VisuallyHidden> (PDF)</VisuallyHidden>
@@ -232,7 +276,7 @@ export function App() {
       <footer className="app-footer">
         <p>{REASSURANCE}</p>
       </footer>
-      {splash && !cart && <Splash directionsHref={DIRECTIONS_HREF} onDismiss={dismissSplash} />}
+      {splash && !cart && <Splash directionsHref={DIRECTIONS_HREF} onGuide={guideFromSplash} onDismiss={dismissSplash} />}
     </div>
   );
 }

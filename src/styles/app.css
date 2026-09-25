@@ -13,6 +13,7 @@
      6. Tree rows (.tree, .tree-row)
      7. Form controls, switches
      8. Disclosure, notices, live region
+    8b. Guide me: the guide card and the Show me ring
      9. Shell: app frame, skip link, header, footer
     10. Step strip
     11. Wizard frame and columns
@@ -898,6 +899,139 @@ a:hover {
   margin-bottom: var(--sg-space-3);
 }
 
+/* ---- 8b. Guide me (DESIGN.md §10 "Guide me") ------------------------------- */
+
+/* The guide card: a sheet in the step's flow under the heading, never over a control.
+   The accent rule on its left edge marks it as the guide, like a notice's tone edge. */
+.guide {
+  padding: var(--sg-space-4) var(--sg-space-4) var(--sg-space-3);
+  border-left: 6px solid var(--sg-accent);
+}
+.guide-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--sg-space-3);
+  margin-bottom: var(--sg-space-3);
+}
+.guide-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--sg-accent);
+  padding-top: 0.2rem;
+}
+.guide-kicker {
+  margin: 0;
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+}
+.guide-title {
+  margin: 0;
+  font-size: var(--sg-text-lg);
+}
+.guide-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sg-space-2);
+}
+/* Mark | text | Show me. Rows are at least 44 px so a Show me tile never crowds its neighbour. */
+.guide-task,
+.guide-tip {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sg-space-3);
+  min-height: var(--sg-tile-sm);
+}
+.guide-text {
+  margin: 0;
+}
+/* The number in an accent ring; a done task swaps it for a check on the success fill (shape and icon, never color alone). */
+.guide-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: var(--sg-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--sg-accent);
+  background: var(--sg-paper);
+  border: 2px solid var(--sg-accent);
+  border-radius: 50%;
+}
+.guide-task.is-done .guide-mark {
+  color: var(--sg-ok-icon);
+  background: var(--sg-ok-bg);
+  border-color: var(--sg-ok-border);
+}
+.guide-task.is-done .guide-mark .bi {
+  animation: sg-check-in var(--sg-motion) var(--sg-ease);
+}
+.guide-task.is-done .guide-text {
+  color: var(--sg-muted);
+}
+.guide-tip {
+  margin-top: var(--sg-space-3);
+  padding-top: var(--sg-space-3);
+  border-top: 1px solid var(--sg-border);
+  font-size: var(--sg-text-sm);
+  color: var(--sg-muted);
+}
+.guide-tip-icon {
+  width: 1.75rem;
+  text-align: center;
+  font-size: 1.125rem;
+  color: var(--sg-accent);
+}
+.guide-show {
+  white-space: nowrap;
+}
+/* In the hero's navy band the card replaces the cover card. Its edge takes the band's light blue
+   (a navy edge would melt into the band) and focus rings go back to the ones used on paper. */
+.wizard-band .guide {
+  --sg-focus: var(--sg-accent);
+  border-left-color: var(--sg-band-muted);
+  text-align: left;
+}
+@media (min-width: 992px) {
+  .wizard-band-aside > .guide {
+    width: 30rem;
+  }
+}
+/* Phones: Show me drops under its line, so the text keeps the width, and the mark sits by the
+   first line of text that now wraps. */
+@media (max-width: 575.98px) {
+  .guide-task,
+  .guide-tip {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .guide-show {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+/* Show me: the target's focus ring, drawn until focus leaves it, pulled in from further out so
+   the eye finds it. Reduced motion keeps the ring and drops the pull (section 15). */
+[data-guided] {
+  outline: var(--sg-focus-width) solid var(--sg-focus) !important;
+  outline-offset: var(--sg-focus-offset);
+  animation: sg-guided 0.7s var(--sg-ease) 2;
+}
+@keyframes sg-guided {
+  from {
+    outline-offset: 12px;
+  }
+  to {
+    outline-offset: var(--sg-focus-offset);
+  }
+}
+
 /* ---- 9. Shell -------------------------------------------------------------- */
 
 .app {
@@ -1068,7 +1202,7 @@ a:hover {
   max-width: 44ch;
   margin-inline: auto;
 }
-/* Touch-first: on phones both tiles go full width, the directions on top. */
+/* Touch-first: on phones both tiles go full width, Guide me on top. */
 @media (max-width: 575.98px) {
   .splash {
     padding-inline: var(--sg-space-4);
@@ -1524,12 +1658,16 @@ a:hover {
   .wizard-nav-back .tile {
     width: 100%;
   }
+  /* Header tiles share the row and wrap rather than squeeze a label onto two lines
+     (three tiles once an export is loaded: Guide me, Directions, Start over). */
   .sg-header-slot {
     margin-left: 0;
     width: 100%;
+    flex-wrap: wrap;
   }
   .sg-header-slot .tile {
-    width: 100%;
+    flex: 1 1 8rem;
+    white-space: nowrap;
   }
 }
 

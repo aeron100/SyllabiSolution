@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type MutableRefObject, type Ref } from 'react';
+import { useCallback, useRef, useState, type MutableRefObject, type ReactNode, type Ref } from 'react';
 import type { AssembledDoc, NoticeCode } from '../../lib/types';
 import { Notice, Tile, VisuallyHidden } from '../../components/ui';
 import { WizardFrame } from '../../components/shell';
@@ -36,6 +36,8 @@ export interface DownloadStepProps {
   onBack?: () => void;
   /** Focus target for the step heading whenever the step changes. */
   headingRef?: Ref<HTMLHeadingElement>;
+  /** The guide card when guide mode is on (DESIGN.md §10 "Guide me"); WizardFrame places it. */
+  guide?: ReactNode;
 }
 
 interface ShownNotice {
@@ -72,6 +74,7 @@ export default function DownloadStep({
   iframeRef,
   onBack,
   headingRef,
+  guide,
 }: DownloadStepProps) {
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [local, setLocal] = useState<LocalDismissed>({ doc, keys: [] });
@@ -133,6 +136,7 @@ export default function DownloadStep({
       title="Your syllabus is ready"
       intro="Print it or export it as a PDF, save the HTML, or check the accessibility report below."
       headingRef={headingRef}
+      guide={guide}
       back={onBack ? { label: 'Back', onClick: onBack } : undefined}
       className="download-step"
     >

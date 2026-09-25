@@ -8,3 +8,5 @@ export { HeroArt } from './HeroArt';
 export type { HeroArtProps } from './HeroArt';
 export { Splash } from './Splash';
 export type { SplashProps } from './Splash';
+export { Guide } from './Guide';
+export type { GuideProps } from './Guide';

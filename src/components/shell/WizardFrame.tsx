@@ -44,6 +44,13 @@ export interface WizardFrameProps {
   band?: ReactNode;
   /** Applied to the `.wizard` container (the body's column). */
   className?: string;
+  /**
+   * The guide card (DESIGN.md §10 "Guide me"), when guide mode is on. It
+   * sits right after the heading and intro, before the nav, so it is the
+   * next thing read after the heading takes focus. With `band` it takes the
+   * band's aside in place of the band content (the hero's decorative cover).
+   */
+  guide?: ReactNode;
 }
 
 /**
@@ -60,7 +67,7 @@ export interface WizardFrameProps {
  * `.wizard` container. The heading keeps its id, ref and tabIndex, so focus
  * management and aria-labelledby work the same in both layouts.
  */
-export function WizardFrame({ step, title, intro, children, back, next, headingRef, aside, kicker, band, className = '' }: WizardFrameProps) {
+export function WizardFrame({ step, title, intro, children, back, next, headingRef, aside, kicker, band, className = '', guide }: WizardFrameProps) {
   const headingId = `wizard-step-${step}-heading`;
   const hintId = `wizard-step-${step}-next-hint`;
   const nextDisabled = next?.disabled === true;
@@ -130,7 +137,7 @@ export function WizardFrame({ step, title, intro, children, back, next, headingR
         <div className="wizard-band">
           <div className="wizard-band-inner">
             <div className="wizard-band-head">{head}</div>
-            <div className="wizard-band-aside">{band}</div>
+            <div className="wizard-band-aside">{guide ?? band}</div>
           </div>
         </div>
         <div className={`wizard wizard-step ${className}`.trim()}>
@@ -144,6 +151,7 @@ export function WizardFrame({ step, title, intro, children, back, next, headingR
   return (
     <section className={`wizard wizard-step ${className}`.trim()} aria-labelledby={headingId}>
       <div className="wizard-head">{head}</div>
+      {guide}
       {navTop}
       {body}
       {navBottom}

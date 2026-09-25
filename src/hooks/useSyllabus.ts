@@ -137,6 +137,8 @@ export interface SyllabusState {
   /** Contextual notices the user has dismissed (kept for the session). */
   dismissed: NoticeCode[];
   printNotice: boolean;
+  /** Print / PDF export was pressed for the current document (the guide ticks it). Cleared by a new document. */
+  printed: boolean;
   /** Notices per processed resource id (from previews and generation). */
   pageNotices: Record<string, NoticeCode[]>;
 }
@@ -182,6 +184,7 @@ export const initialState: SyllabusState = {
   progress: null,
   dismissed: [],
   printNotice: false,
+  printed: false,
   pageNotices: {},
 };
 
@@ -212,7 +215,8 @@ type Action =
   | { type: 'GEN_FAIL'; error: string; key: string }
   | { type: 'DOWNLOADED' }
   | { type: 'DISMISS'; code: NoticeCode }
-  | { type: 'PRINT_NOTICE' }
+  /** Print was pressed; `hint` adds the "print from Chrome or Edge" notice. */
+  | { type: 'PRINTED'; hint: boolean }
   | { type: 'STATUS'; status: string };
 
 function reducer(s: SyllabusState, a: Action): SyllabusState {
@@ -319,6 +323,7 @@ function reducer(s: SyllabusState, a: Action): SyllabusState {
         progress: null,
         status: STATUS.ready,
         printNotice: false,
+        printed: false,
         livePreview: { key: a.key, doc: a.doc },
         livePreviewLoading: false,
         liveFailedKey: null,
@@ -332,8 +337,8 @@ function reducer(s: SyllabusState, a: Action): SyllabusState {
       return { ...s, downloaded: true, status: announce(s.status, STATUS.saved) };
     case 'DISMISS':
       return { ...s, dismissed: s.dismissed.includes(a.code) ? s.dismissed : [...s.dismissed, a.code] };
-    case 'PRINT_NOTICE':
-      return { ...s, printNotice: true };
+    case 'PRINTED':
+      return { ...s, printed: true, printNotice: s.printNotice || a.hint };
     case 'STATUS':
       return { ...s, status: announce(s.status, a.status) };
     default:
@@ -839,7 +844,7 @@ export function useSyllabus({ livePreview: liveActive = false }: UseSyllabusOpti
   }, []);
 
   const notePrinted = useCallback(() => {
-    if (!currentBrowserIsChromium()) dispatch({ type: 'PRINT_NOTICE' });
+    dispatch({ type: 'PRINTED', hint: !currentBrowserIsChromium() });
   }, []);
 
   const dismissNotice = useCallback((code: NoticeCode) => dispatch({ type: 'DISMISS', code }), []);

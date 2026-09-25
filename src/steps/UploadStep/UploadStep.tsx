@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState, type ChangeEvent, type DragEvent, type MouseEvent, type Ref } from 'react';
+import { Fragment, useRef, useState, type ChangeEvent, type DragEvent, type MouseEvent, type ReactNode, type Ref } from 'react';
 import { HeroArt, WizardFrame } from '../../components/shell';
 import { Disclosure, Notice, Tile } from '../../components/ui';
 import { ACCESSIBILITY_DISCLAIMER, APP_NAME, EXPECT_ITEMS, EXPORT_STEPS, HERO_FEATURES, HINTS, REASSURANCE, STATUS, type HeroFeature } from '../../ui/copy';
@@ -17,6 +17,8 @@ export interface UploadStepProps {
   error?: string;
   /** Receives the step heading so the app can move focus to it on arrival. */
   headingRef?: Ref<HTMLHeadingElement>;
+  /** The guide card when guide mode is on (DESIGN.md §10 "Guide me"); WizardFrame places it. */
+  guide?: ReactNode;
 }
 
 /** Shown when a dropped or chosen file is not a course export. */
@@ -80,7 +82,7 @@ function CoverCard() {
  * how to export, what to expect, and about accessibility. No JavaScript
  * reaches the document.
  */
-export default function UploadStep({ onFile, busy, status, error, headingRef }: UploadStepProps) {
+export default function UploadStep({ onFile, busy, status, error, headingRef, guide }: UploadStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
   const [dragging, setDragging] = useState(false);
@@ -150,7 +152,7 @@ export default function UploadStep({ onFile, busy, status, error, headingRef }: 
 
   return (
     <div className="hero-step">
-      <WizardFrame step={1} title={APP_NAME} kicker={KICKER} intro={REASSURANCE} band={<CoverCard />} className="hero" headingRef={headingRef}>
+      <WizardFrame step={1} title={APP_NAME} kicker={KICKER} intro={REASSURANCE} band={<CoverCard />} className="hero" headingRef={headingRef} guide={guide}>
         <div
           className={sheetClass}
           role="group"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type Ref } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from 'react';
 import type { Cartridge, Kind } from '../../lib/types';
 import { WizardFrame } from '../../components/shell';
 import { Disclosure, LiveRegion } from '../../components/ui';
@@ -36,6 +36,8 @@ export interface ChooseStepProps {
   onNext?: () => void;
   /** Focus target when the step changes (WizardFrame moves focus to the heading). */
   headingRef?: Ref<HTMLHeadingElement>;
+  /** The guide card when guide mode is on (DESIGN.md §10 "Guide me"); WizardFrame places it. */
+  guide?: ReactNode;
 }
 
 const WIDE_QUERY = '(min-width: 992px)';
@@ -85,6 +87,7 @@ export default function ChooseStep({
   onBack,
   onNext,
   headingRef,
+  guide,
 }: ChooseStepProps) {
   const wide = useMediaQuery(WIDE_QUERY);
   const [status, setStatus] = useState('');
@@ -187,6 +190,7 @@ export default function ChooseStep({
       title="Choose pages"
       intro="Check the pages you want in your syllabus. Click a page to preview its content."
       headingRef={headingRef}
+      guide={guide}
       back={onBack ? { label: 'Back', onClick: onBack } : undefined}
       next={
         onNext

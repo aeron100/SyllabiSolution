@@ -16,12 +16,67 @@ export const STEPS: readonly string[] = ['Upload', 'Choose pages', 'Arrange and 
 export const SPLASH = {
   kicker: 'Welcome',
   title: 'New to the Syllabus Generator?',
-  text: 'The directions walk you through exporting your course from Canvas and building your syllabus, step by step.',
-  directions: 'Read the directions',
+  text: 'Turn on the guide and each step tells you what to do next, from exporting your course in Canvas to saving the PDF.',
+  guide: 'Guide me',
   start: 'Get started',
-  hint: 'Opens a PDF in a new tab. You can find it later under Directions at the top of the page.',
+  /** The hint under the tiles leads into a plain link to the directions PDF. */
+  hint: 'Prefer to read first?',
+  directions: 'Read the directions (PDF)',
 } as const;
 export const DIRECTIONS_LABEL = 'Directions';
+
+/**
+ * §10 "Guide me" — the header toggle and the guide card on each step.
+ * src/ui/guide.ts picks the lines for the current state and ticks the ones
+ * the app can see done; the rest happen in Canvas or the print window.
+ */
+export const GUIDE = {
+  toggle: 'Guide me',
+  kicker: 'Guide',
+  hide: 'Hide the guide',
+  showMe: 'Show me',
+  done: 'Done: ',
+  upload: {
+    title: 'Get your course export from Canvas',
+    open: 'In Canvas, open your course, then Settings, then Export Course Content.',
+    create: 'Choose Course and click Create Export. A large course can take a few minutes.',
+    download: 'When it finishes, click the link that appears. The .imscc file goes to your Downloads folder.',
+    choose: 'Come back to this tab and click Choose a file.',
+    tip: 'Your course is read right here in this browser. Nothing is uploaded.',
+  },
+  choose: {
+    title: 'Pick the pages for your syllabus',
+    check: 'Check each page you want.',
+    syllabusChecked: 'Your Canvas Syllabus is already checked.',
+    preview: 'Click a title to preview it.',
+    next: 'Click Next. You can change the order on the next step.',
+    /** `kinds` is the hidden chip labels in chip order; more than three are summed up by the first two. */
+    hidden: (kinds: readonly string[]) =>
+      `Some content is hidden${kinds.length > 3 ? `, such as ${kinds[0]} and ${kinds[1]}` : `: ${kinds.join(', ')}`}. Open Content types to show it.`,
+    tip: 'Leaving a page out never changes your Canvas course.',
+  },
+  arrange: {
+    title: 'Set the look, order, and cover',
+    look: 'Pick a look. The preview changes as you click.',
+    order: 'Check the order under Your syllabus. Move up and Move down change it.',
+    cover: 'Add your name, email, and office hours under Cover. They are not in the export.',
+    generate: 'Click Generate syllabus when the preview looks right.',
+    tip: 'Every look except Original uses colors checked for contrast.',
+  },
+  finalize: {
+    title: 'Save it as a PDF',
+    print: 'Click Print / PDF export.',
+    destination: 'In the print window, set Destination to Save as PDF. Edge calls it Printer.',
+    headers: 'Open More settings and turn off Headers and footers, so the date and web address stay off the pages.',
+    /** Other browsers name the print window's controls differently. */
+    destinationOther: 'In the print window, choose to save as a PDF.',
+    headersOther: 'Turn off headers and footers if your browser offers it.',
+    save: 'Click Save and choose where to keep the file.',
+    todo: (n: number) =>
+      `The report below lists ${n} ${n === 1 ? 'thing' : 'things'} only you can fix. Fix ${n === 1 ? 'it' : 'them'} in Canvas, then export again.`,
+    clean: 'The report found nothing to fix. Read your syllabus through once anyway: no tool can tell whether descriptions and link text make sense.',
+  },
+} as const;
 
 /** §10 — "How to export from Canvas" disclosure: three short steps. */
 export const EXPORT_STEPS: readonly string[] = [

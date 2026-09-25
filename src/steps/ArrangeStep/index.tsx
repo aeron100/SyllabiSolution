@@ -1,4 +1,4 @@
-import type { Ref } from 'react';
+import type { ReactNode, Ref } from 'react';
 import type { Cartridge, CoverInfo, DocOptions } from '../../lib/types';
 import { WizardFrame } from '../../components/shell';
 import { ProgressBar } from '../../components/ui';
@@ -34,6 +34,8 @@ export interface ArrangeStepProps {
   progress?: { done: number; total: number };
   /** Focus target when the step changes (WizardFrame heading). */
   headingRef?: Ref<HTMLHeadingElement>;
+  /** The guide card when guide mode is on (DESIGN.md §10 "Guide me"); WizardFrame places it. */
+  guide?: ReactNode;
 }
 
 export const ARRANGE_STEP_TITLE = 'Arrange and style';
@@ -74,6 +76,7 @@ export default function ArrangeStep({
   generating = false,
   progress,
   headingRef,
+  guide,
 }: ArrangeStepProps) {
   const entries: SyllabusEntry[] = order.flatMap((id) => {
     const r = cart.resources.get(id);
@@ -88,6 +91,7 @@ export default function ArrangeStep({
       title={ARRANGE_STEP_TITLE}
       intro={ARRANGE_STEP_INTRO}
       headingRef={headingRef}
+      guide={guide}
       className="arrange-step"
       back={onBack ? { label: 'Back', onClick: onBack } : undefined}
       next={

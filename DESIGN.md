@@ -6,7 +6,7 @@ self-contained file as `docs/SyllabiSolution.html` (to email or share)
 and the same file as `docs/index.html` (for static hosting).
 In development, `?load=/__dev/<file>.imscc` loads an export from the project
 root without uploading.
-Last updated: 2026-09-03 (Phase 1 built: wizard, tiles, palettes, Coastline branding)
+Last updated: 2026-09-25 (Guide me: an opt-in guide card on every step)
 
 ## 1. Overview
 
@@ -557,6 +557,9 @@ over text. Rules:
 - **Guide in place.** Each panel's empty state says what to do next in one
   sentence ("Check pages on the left to add them here"). Hints sit next
   to the control they explain, never in a separate help page.
+- **More guidance on request.** "Guide me" adds a checklist card to every
+  step for a first-time user and takes nothing away when it is off (see
+  "Guide me" below). It is a card in the page, never a tour over it.
 - **Sensible defaults.** Syllabus page pre-checked and first in the
   default order (position 1; every page checked after it follows in the
   order it was checked), Styled preselected with Sapphire & Brass, cover
@@ -624,13 +627,51 @@ read, the app announces "Found 33 pages in 9 modules" and advances to step
 **Welcome splash.** On every load, a sheet of paper opens over the hero as
 a native modal `<dialog>`: the stacking-pages motif, the small-caps kicker
 "Welcome", "New to the Syllabus Generator?", one sentence on what the
-directions cover, then two tiles: "Read the directions" (primary, the PDF
-in a new tab) and "Get started". A hint under them says the PDF opens in a
-new tab and stays under Directions in the header. Focus starts on Get
+guide does, then two tiles: "Guide me" (primary, turns guide mode on) and
+"Get started". Under them a hint, "Prefer to read first?", leads into a
+plain link, "Read the directions (PDF)", which opens the PDF in a new tab
+(it also stays under Directions in the header). Focus starts on Get
 started, so Enter or Escape carries a returning user straight on; any of
-Escape, Get started, or following the link closes it and moves focus to
-the step heading. Nothing is remembered (no storage), so it shows again
-on the next load, never after Start over, and an export arriving closes it.
+Escape, Get started, Guide me, or following the link closes it and moves
+focus to the step heading. Nothing is remembered (no storage), so it shows
+again on the next load, never after Start over, and an export arriving
+closes it.
+
+**Guide me.** A toggle for first-time users, off by default. The header
+tile "Guide me" (a ghost tile with `aria-pressed`; its name never changes,
+and when on it takes the pressed fill, a border, and a filled signpost
+icon) and the splash's Guide me tile turn it on. It lives in memory only,
+like everything else: a reload turns it off and the splash offers it
+again; Start over keeps it as it was. While it is on, every step shows a
+guide card: a sheet with a left accent edge, the kicker "Guide", an `h3`
+naming the step's goal, a numbered list of two to four tasks, and one tip
+under a hairline. It sits in the page's flow after the step's heading and
+intro and before the nav, so it is the next thing read when focus lands
+on the heading, and it never covers a control (it is not sticky and not a
+tour or popover). On step 1 it takes the navy band's aside in place of the
+decorative cover card (with a light-blue edge, since navy melts into the
+band, and the paper focus ring). A Hide tile (×) on the card turns guide
+mode off and moves focus to the step heading.
+
+The tasks come from state (`src/ui/guide.ts`), and a task gets a check
+(a success fill and a check mark in place of its number, plus a hidden
+"Done:" for screen readers) only when the app can see it done. What
+happens in Canvas or in the print window is never ticked:
+
+| Step | Card title | Tasks (ticked when) | Tip |
+|---|---|---|---|
+| 1 | Get your course export from Canvas | Open Settings → Export Course Content; choose Course and Create Export (large courses take minutes); click the link that appears (the file goes to Downloads); come back and click Choose a file | Nothing is uploaded |
+| 2 | Pick the pages for your syllabus | Check each page you want, "Your Canvas Syllabus is already checked" while it is (a page is checked); click a title to preview it (a page was previewed); click Next, the order comes next | The hidden kinds by chip name (three at most, else "such as" the first two) and Content types, or that leaving a page out never changes the Canvas course |
+| 3 | Set the look, order, and cover | Pick a look; check the order under Your syllabus (only with two or more pages); add name, email, office hours under Cover (the instructor name is filled in); click Generate syllabus | Every look except Original is checked for contrast |
+| 4 | Save it as a PDF | Click Print / PDF export (pressed for this document; a new document clears it); set Destination to Save as PDF (Edge: Printer); More settings → Headers and footers off; click Save. Outside Chrome and Edge the two middle lines are generic | The report's "Still needs you" count and to fix those in Canvas and export again, or that it found nothing, with the reminder that no tool can judge descriptions and link text |
+
+Tasks that point at a control carry a "Show me" ghost tile (its name ends
+with the place, e.g. "Show me the cover form"). It scrolls the control to
+the middle of the screen (instantly under reduced motion) and focuses it,
+and because focus moved by script after a click does not always draw a
+ring, a `data-guided` attribute draws the focus ring, pulled in once from
+further out, until focus leaves the control. Show me points at, it never
+acts: it does not open Content types or press Print.
 
 **Step 2 — Choose pages.**
 Two columns on wide screens, stacked on narrow. Left: a "Content types"
@@ -756,9 +797,11 @@ desk. Editorial, calm, confident.
   Community College" mark found in the export is not used. The header is a
   landmark
   (`<header>` with the logo as a linked image whose alt text is
-  "Coastline College"). Its right slot holds a quiet "Directions" link on
-  every step (a ghost tile with a PDF icon, opening the directions PDF in
-  a new tab) and, once an export is loaded, the "Start over" tile.
+  "Coastline College"). Its right slot holds the "Guide me" toggle and a
+  quiet "Directions" link on every step (ghost tiles; Directions has a PDF
+  icon and opens the directions PDF in a new tab) and, once an export is
+  loaded, the "Start over" tile. Under 768 px the tiles share the row at
+  8 rem or more each and wrap, so no label breaks onto two lines.
 - **Color.** The app uses Coastline College's official brand colors from
   its published brand guide: Primary Navy `#003764` (Pantone 2955C),
   Secondary Blue `#6BC4E8` (297C), and Secondary Blue `#3CB4E5` (298C).
@@ -1041,4 +1084,5 @@ Resolved:
 | Content types default | Only Syllabus and Pages shown; all other kinds hidden until turned on | Most likely syllabus material first; nothing is ever missing |
 | Editing the output | None; save the HTML and edit it elsewhere | Edits would be lost on regenerate and bypass the structural pass |
 | Branding | Coastline College logo + "Institutional Effectiveness" tagline in the header; accent from the logo blue | Sponsor identity; coordinated palette |
-| Directions | A PDF beside the page on GitHub Pages; a welcome splash on every load plus a Directions link in the header | Faculty use the tool once a term; the walkthrough is one click away without a help page in the app |
+| Directions | A PDF beside the page on GitHub Pages; a link under the welcome splash's tiles plus a Directions link in the header | Faculty use the tool once a term; the walkthrough is one click away without a help page in the app |
+| Guide me | An opt-in card of tasks in each step's flow, ticked from state, with Show me to focus a control; the splash's primary tile and a header toggle; not a coach-mark tour | Tours cover controls, break at narrow widths, and get skipped; a card keeps WCAG 2.2 AA and reaches the parts that happen outside the app (the Canvas export, the print window) |
